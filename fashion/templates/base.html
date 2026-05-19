@@ -1,0 +1,644 @@
+{% load static %}
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Vishakhan Clothings — Premium Fashion{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Discover the latest in luxury fashion — curated collections for the modern wardrobe.{% endblock %}" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+  {% block extra_css %}{% endblock %}
+  <style>
+    .google-login-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 12px 20px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-main) !important;
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      background: var(--bg-main);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .google-login-btn:hover {
+      background: var(--bg-offset);
+      border-color: var(--accent);
+      box-shadow: 0 4px 15px rgba(197, 160, 89, 0.15);
+    }
+    .user-nav-container {
+      position: relative;
+      display: inline-block;
+    }
+    .user-nav-container:hover .user-hover-dropdown {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      transform: translateY(0) !important;
+    }
+    .user-hover-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 15px;
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 4px;
+      padding: 24px 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(197, 160, 89, 0.04);
+      z-index: 1000;
+      width: 280px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .user-hover-dropdown::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      right: 12px;
+      border-width: 8px;
+      border-style: solid;
+      border-color: transparent transparent var(--accent) transparent;
+    }
+    .user-hover-dropdown::after {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      width: 100%;
+      height: 15px;
+      background: transparent;
+    }
+    .user-hover-dropdown-title {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      color: var(--text-main);
+      margin: 0 0 6px 0;
+    }
+    .user-hover-dropdown-text {
+      font-family: var(--font-sans);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      line-height: 1.5;
+      font-weight: 400;
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ========== PRELOADER ========== -->
+  {% if request.path == '/' %}
+  <div id="preloader">
+    <div class="preloader-inner">
+      <span class="preloader-logo">Vishakhan Clothings</span>
+      <div class="preloader-bar"><div class="preloader-fill"></div></div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ========== ANNOUNCEMENT BAR ========== -->
+  <!-- <div class="announcement-bar" id="announcementBar">
+    <div class="announcement-inner">
+      <p>Free shipping on orders over ₹999 &nbsp;·&nbsp; Use code <strong>LUXE20</strong> for 20% off &nbsp;·&nbsp; New arrivals every Friday</p>
+    </div>
+    <button class="announcement-close" onclick="document.getElementById('announcementBar').style.display='none'">×</button>
+  </div> -->
+
+  <!-- ========== NAVBAR ========== -->
+  <header class="navbar" id="mainNavbar">
+    <div class="navbar-container">
+
+      <!-- Hamburger (mobile) -->
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <!-- Logo -->
+      <a href="{% url 'home' %}" class="navbar-logo">Vishakhan Clothings</a>
+
+      <!-- Desktop Nav Links -->
+      <nav class="navbar-nav" id="desktopNav">
+        <ul class="nav-list">
+
+          <li class="nav-item has-mega">
+            <a href="{% url 'product_list' %}?sort=high_discount" class="nav-link">Offers</a>
+            <div class="mega-menu">
+              <div class="mega-inner">
+                <div class="mega-col">
+                  <h4 class="mega-heading">Basic Offers</h4>
+                  <ul>
+                    {% for offer in basic_offers %}
+                    <li><a href="{% url 'product_detail' offer.slug %}">{{ offer.name|truncatechars:20 }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <div class="mega-col">
+                  <h4 class="mega-heading">Premium Offers</h4>
+                  <ul>
+                    {% for offer in premium_offers %}
+                    <li><a href="{% url 'product_detail' offer.slug %}">{{ offer.name|truncatechars:20 }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <div class="mega-col mega-featured">
+                  <div class="mega-banner mega-banner--offers">
+                    <div class="mega-banner-img" style="background-image: url('{% static 'images/offer.jpg' %}');"></div>
+                    <span>Explore offers</span>
+                    <p>Shop the season's best deals</p>
+                    <a href="{% url 'product_list' %}?sort=high_discount" class="mega-cta">Shop Now →</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <li class="nav-item has-mega">
+            <a href="{% url 'product_list' %}?section=tops" class="nav-link">Tops</a>
+            <div class="mega-menu">
+              <div class="mega-inner">
+                <div class="mega-col">
+                  <h4 class="mega-heading">Categories</h4>
+                  <ul>
+                    {% for top in tops|slice:":5" %}
+                    <li><a href="{% url 'product_list' %}?category={{ top.slug }}&section=tops">{{ top.name }}</a></li>
+                    {% empty %}
+                    <li><a href="#">T-Shirts</a></li>
+                    <li><a href="#">Shirts</a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <div class="mega-col">
+                  <h4 class="mega-heading">Sports wear</h4>
+                  <ul>
+                    {% for sub in sport_wear_tops %}
+                    <li><a href="{% url 'product_list' %}?subcategory={{ sub.slug }}&section=tops">{{ sub.name }}</a></li>
+                    {% empty %}
+                    <li><a href="#">Dry fit T-shirt</a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <div class="mega-col mega-featured">
+                  <div class="mega-banner mega-banner--tops">
+                    <div class="mega-banner-img" style="background-image: url('{% static 'images/tops.jpg' %}');"></div>
+                    <span>New Collection</span>
+                    <p>Premium tops for the modern man</p>
+                    <a href="{% url 'product_list' %}?section=tops" class="mega-cta">Explore Tops →</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <li class="nav-item has-mega">
+            <a href="{% url 'product_list' %}?section=bottoms" class="nav-link">Bottoms</a>
+            <div class="mega-menu">
+              <div class="mega-inner">
+                <div class="mega-col">
+                  <h4 class="mega-heading">Categories</h4>
+                  <ul>
+                    {% for bottom in bottoms|slice:":5" %}
+                    <li><a href="{% url 'product_list' %}?category={{ bottom.slug }}&section=bottoms">{{ bottom.name }}</a></li>
+                    {% empty %}
+                    <li><a href="#">Jeans</a></li>
+                    <li><a href="#">Trousers</a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <div class="mega-col">
+                  <h4 class="mega-heading">Sports wear</h4>
+                  <ul>
+                    {% for sub in sport_wear_bottoms %}
+                    <li><a href="{% url 'product_list' %}?subcategory={{ sub.slug }}&section=bottoms">{{ sub.name }}</a></li>
+                    {% empty %}
+                    <li><a href="#">Shorts</a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <div class="mega-col mega-featured">
+                  <div class="mega-banner mega-banner--bottoms">
+                    <div class="mega-banner-img" style="background-image: url('{% static 'images/bottom.jpg' %}');"></div>
+                    <span>The Perfect Fit</span>
+                    <p>Tailored comfort for every step</p>
+                    <a href="{% url 'product_list' %}?section=bottoms" class="mega-cta">Explore Bottoms →</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <li class="nav-item">
+            <a href="{% url 'product_list' %}" class="nav-link">Fashion</a>
+          </li>
+
+        </ul>
+      </nav>
+
+      <!-- Navbar Actions -->
+      <div class="navbar-actions">
+
+        <!-- Search -->
+        <button class="action-btn search-trigger" id="searchTrigger" aria-label="Search">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+
+        <!-- Dark Mode -->
+        <button class="action-btn theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+
+        <!-- Wishlist -->
+        {% if user.is_authenticated %}
+          <a href="#" class="action-btn nav-wishlist-btn" aria-label="Wishlist">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="badge" style="{% if not wishlist_count %}display: none;{% endif %}">{{ wishlist_count|default:0 }}</span>
+          </a>
+        {% else %}
+          <a href="#" class="action-btn unauth-wishlist" aria-label="Wishlist">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </a>
+        {% endif %}
+
+        <!-- Cart -->
+        {% if user.is_authenticated %}
+          <a href="#" class="action-btn cart-btn" aria-label="Cart">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span class="badge badge--cart" style="{% if not cart_count %}display: none;{% endif %}">{{ cart_count|default:0 }}</span>
+          </a>
+        {% else %}
+          <a href="#" class="action-btn unauth-cart" aria-label="Cart">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          </a>
+        {% endif %}
+
+        <!-- User / Auth -->
+        {% if user.is_authenticated %}
+          <a href="{% url 'profile' %}" class="action-btn user-btn" aria-label="Account">
+            {% if user.profile_image %}
+              <img src="{{ user.profile_image.url }}" alt="{{ user.username }}" class="user-avatar" />
+            {% else %}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            {% endif %}
+          </a>
+        {% else %}
+          <div class="user-nav-container">
+            <a href="{% provider_login_url 'google' %}" class="action-btn user-btn" aria-label="Account" style="display: flex; align-items: center; justify-content: center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </a>
+            <!-- Premium Hover Dropdown -->
+            <div class="user-hover-dropdown">
+              <div style="margin-bottom: 18px; text-align: center;">
+                <h4 class="user-hover-dropdown-title">Welcome Customer</h4>
+                <p class="user-hover-dropdown-text">Sign in to sync your bag, track your orders, and secure checkout.</p>
+              </div>
+              <a href="{% provider_login_url 'google' %}" class="google-login-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                Continue with Google
+              </a>
+            </div>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+      <div class="search-overlay-inner">
+        <button class="search-close" id="searchClose">×</button>
+        <form method="GET" action="{% url 'search' %}" class="search-form">
+          <input type="text" name="q" placeholder="Search for brands, styles, products…" class="search-input" autofocus />
+          <button type="submit" class="search-submit">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </button>
+        </form>
+        <div class="search-suggestions">
+          <span class="suggestions-label">Trending</span>
+          <div class="suggestion-tags">
+            <a href="{% url 'search' %}?q=Summer+Dresses">Summer Dresses</a>
+            <a href="{% url 'search' %}?q=Oversized+Tees">Oversized Tees</a>
+            <a href="{% url 'search' %}?q=Wide+Leg+Trousers">Wide Leg Trousers</a>
+            <a href="{% url 'search' %}?q=Linen+Sets">Linen Sets</a>
+            <a href="{% url 'search' %}?q=Sneakers">Sneakers</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+  <nav class="mobile-drawer" id="mobileDrawer">
+    <div class="drawer-header">
+      <span class="drawer-logo">Vishakhan Clothings</span>
+      <button class="drawer-close" id="drawerClose">×</button>
+    </div>
+    <ul class="drawer-nav">
+      <li class="has-submenu">
+        <a href="{% url 'search' %}?group=offers" class="submenu-trigger">Offers <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron"><polyline points="6 9 12 15 18 9"/></svg></a>
+        <ul class="submenu">
+          <li><a href="#">Flash Sale</a></li>
+          <li><a href="#">Up to 70% Off</a></li>
+          <li><a href="#">Clearance</a></li>
+          <li><a href="#">Bundle Offers</a></li>
+        </ul>
+      </li>
+      <li class="has-submenu">
+        <a href="{% url 'product_list' %}?section=tops" class="submenu-trigger">Tops <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron"><polyline points="6 9 12 15 18 9"/></svg></a>
+        <ul class="submenu">
+          <li><a href="#">T-Shirts</a></li>
+          <li><a href="#">Shirts</a></li>
+          <li><a href="#">Polo Shirts</a></li>
+          <li><a href="#">Hoodies</a></li>
+          <li><a href="#">Blouses</a></li>
+          <li><a href="#">Crop Tops</a></li>
+        </ul>
+      </li>
+      <li class="has-submenu">
+        <a href="{% url 'product_list' %}?section=bottoms" class="submenu-trigger">Bottoms <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron"><polyline points="6 9 12 15 18 9"/></svg></a>
+        <ul class="submenu">
+          <li><a href="#">Jeans</a></li>
+          <li><a href="#">Trousers</a></li>
+          <li><a href="#">Chinos</a></li>
+          <li><a href="#">Joggers</a></li>
+          <li><a href="#">Skirts</a></li>
+          <li><a href="#">Denim</a></li>
+        </ul>
+      </li>
+      <li class="has-submenu">
+        <a href="#" class="submenu-trigger">Brands <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron"><polyline points="6 9 12 15 18 9"/></svg></a>
+        <ul class="submenu">
+          <div class="mobile-brands-grid">
+            {% if brands %}
+              {% for brand in brands %}<li><a href="#">{{ brand.name }}</a></li>{% endfor %}
+            {% else %}
+              <li><a href="#">Zara</a></li>
+              <li><a href="#">H&M</a></li>
+              <li><a href="#">Nike</a></li>
+              <li><a href="#">Adidas</a></li>
+              <li><a href="#">Levi's</a></li>
+              <li><a href="#">Mango</a></li>
+            {% endif %}
+          </div>
+        </ul>
+      </li>
+      <li class="drawer-divider"></li>
+      <li><a href="#">My Wishlist</a></li>
+      <li><a href="#">My Orders</a></li>
+      <li><a href="#">My Account</a></li>
+      {% if not user.is_authenticated %}
+      <li class="drawer-auth">
+        <a href="#" class="btn btn--full">Sign In / Register</a>
+      </li>
+      {% endif %}
+    </ul>
+    <div class="drawer-theme">
+      <span>Dark Mode</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="mobileThemeToggle" />
+        <span class="toggle-knob"></span>
+      </label>
+    </div>
+  </nav>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">Vishakhan Clothings</div>
+        <p class="footer-tagline">Crafted for the bold. Worn by the few.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Instagram" class="social-link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+          </a>
+          <a href="#" aria-label="Twitter" class="social-link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53A4.48 4.48 0 0 0 22.43.36a9 9 0 0 1-2.88 1.1A4.52 4.52 0 0 0 16.11 0c-2.5 0-4.52 2.03-4.52 4.52 0 .35.04.7.11 1.03C7.69 5.37 4.07 3.58 1.64.9a4.5 4.5 0 0 0-.61 2.27c0 1.57.8 2.95 2.01 3.76A4.5 4.5 0 0 1 .96 6.4v.06c0 2.19 1.56 4.01 3.63 4.43a4.52 4.52 0 0 1-2.04.08 4.53 4.53 0 0 0 4.22 3.14A9.07 9.07 0 0 1 0 15.54a12.8 12.8 0 0 0 6.92 2.03c8.3 0 12.84-6.88 12.84-12.84l-.01-.58A9.17 9.17 0 0 0 23 3z"/></svg>
+          </a>
+          <a href="#" aria-label="Pinterest" class="social-link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.65 7.86 6.39 9.29-.09-.78-.17-1.98.04-2.83.18-.77 1.22-5.17 1.22-5.17s-.31-.63-.31-1.56c0-1.46.85-2.55 1.9-2.55.9 0 1.33.67 1.33 1.48 0 .9-.58 2.26-.87 3.52-.25 1.05.52 1.9 1.55 1.9 1.86 0 3.29-1.96 3.29-4.79 0-2.51-1.8-4.26-4.37-4.26-2.97 0-4.72 2.23-4.72 4.53 0 .9.35 1.85.78 2.38.09.1.1.19.07.3-.08.32-.25 1.05-.29 1.19-.04.19-.14.23-.32.14-1.25-.58-2.03-2.42-2.03-3.89 0-3.16 2.3-6.07 6.63-6.07 3.48 0 6.19 2.48 6.19 5.8 0 3.46-2.18 6.24-5.2 6.24-1.02 0-1.97-.53-2.3-1.15l-.62 2.33c-.23.87-.84 1.96-1.25 2.62.94.29 1.94.45 2.97.45 5.52 0 10-4.48 10-10S17.52 2 12 2z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-links-grid">
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="#">New Arrivals</a></li>
+            <li><a href="{% url 'product_list' %}?sort=rating">Top Rated</a></li>
+            <li><a href="{% url 'product_list' %}?sort=high_discount">High Discount</a></li>
+            <li><a href="{% url 'product_list' %}?sort=high_discount">Sale</a></li>
+            <li><a href="#">Brands</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Help</h4>
+          <ul>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Track Order</a></li>
+            <li><a href="#">Returns</a></li>
+            <li><a href="#">Shipping Info</a></li>
+            <li><a href="#">Size Guide</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#">About Vishakhan Clothings</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Sustainability</a></li>
+            <li><a href="#">Press</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Newsletter</h4>
+          <p class="footer-newsletter-text">Get early access to drops, exclusive offers, and style insiders.</p>
+          <form class="newsletter-form">
+            <input type="email" placeholder="your@email.com" />
+            <button type="submit">→</button>
+          </form>
+          <div class="footer-payment">
+            <span>Visa</span><span>Mastercard</span><span>UPI</span><span>PayPal</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2025 Vishakhan Clothings Fashion. All rights reserved.</p>
+      <div class="footer-legal">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Policy</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cart Drawer -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer">
+    <div class="cart-drawer-header">
+      <h3>Your Bag <span id="cartItemCount">({% if user.is_authenticated %}{{ cart_count }}{% else %}0{% endif %})</span></h3>
+      <button class="cart-close" id="cartClose">×</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      {% if user.is_authenticated and cart_items %}
+        {% for item in cart_items %}
+          <div class="cart-item" style="display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; align-items: center; position: relative;">
+            <div style="width: 70px; height: 90px; border-radius: 4px; overflow: hidden; flex-shrink: 0; background: var(--bg-offset, #f5f5f5);">
+              {% if item.product_variant.image %}
+                <img src="{{ item.product_variant.image.url }}" alt="{{ item.product_variant.product.name }}" style="width: 100%; height: 100%; object-fit: cover;" />
+              {% elif item.product_variant.product.image %}
+                <img src="{{ item.product_variant.product.image.url }}" alt="{{ item.product_variant.product.name }}" style="width: 100%; height: 100%; object-fit: cover;" />
+              {% endif %}
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <h4 style="font-weight: 600; font-size: 14px; color: var(--text-main); margin: 0 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <a href="{% url 'product_detail' item.product_variant.product.slug %}" style="color: inherit; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='inherit'">{{ item.product_variant.product.name }}</a>
+              </h4>
+              <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 8px 0;">Size: {{ item.product_variant.size }} | Color: {{ item.product_variant.color }}</p>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; gap: 10px;">
+                <!-- Modern compact quantity selector -->
+                <div class="cart-qty-selector" style="display: flex; align-items: center; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; background: var(--bg-main);">
+                  <button class="cart-qty-btn cart-qty-minus" data-item-id="{{ item.id }}" style="border: none; background: transparent; width: 24px; height: 24px; font-size: 14px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='var(--bg-offset)'" onmouseout="this.style.background='transparent'">−</button>
+                  <span class="cart-qty-val" style="width: 24px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text-main);">{{ item.quantity }}</span>
+                  <button class="cart-qty-btn cart-qty-plus" data-item-id="{{ item.id }}" style="border: none; background: transparent; width: 24px; height: 24px; font-size: 14px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='var(--bg-offset)'" onmouseout="this.style.background='transparent'">+</button>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                  <span style="font-size: 11px; color: var(--text-muted); margin-bottom: 2px;">{{ item.quantity }} × ₹{{ item.product_variant.final_price }}</span>
+                  <span style="font-size: 14px; font-weight: 700; color: var(--text-main);">₹{{ item.total_price }}</span>
+                </div>
+              </div>
+            </div>
+            <button class="remove-cart-item" data-id="{{ item.id }}" style="position: absolute; top: 0; right: 0; background: transparent; border: none; font-size: 22px; line-height: 1; color: var(--text-muted); cursor: pointer; transition: color 0.2s;">&times;</button>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="cart-empty">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <p>Your bag is empty</p>
+          <a href="{% url 'product_list' %}" class="btn" style="text-decoration: none;">Start Shopping</a>
+        </div>
+      {% endif %}
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Total</span>
+        <span id="cartTotal">₹{% if user.is_authenticated %}{{ cart_subtotal }}{% else %}0{% endif %}</span>
+      </div>
+      <a href="#" class="btn btn--full">Checkout</a>
+    </div>
+  </aside>
+
+  <!-- Wishlist Drawer -->
+  <div class="cart-overlay" id="wishlistOverlay"></div>
+  <aside class="cart-drawer" id="wishlistDrawer">
+    <div class="cart-drawer-header">
+      <h3>Your Wishlist <span id="wishlistItemCount">({% if user.is_authenticated %}{{ wishlist_count }}{% else %}0{% endif %})</span></h3>
+      <button class="cart-close" id="wishlistClose">×</button>
+    </div>
+    <div class="cart-items" id="wishlistItems">
+      {% if user.is_authenticated and wishlist_items %}
+        {% for item in wishlist_items %}
+          <div class="cart-item wishlist-item" style="display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; align-items: center; position: relative;" data-product-id="{{ item.product.id }}">
+            <div style="width: 70px; height: 90px; border-radius: 4px; overflow: hidden; flex-shrink: 0; background: var(--bg-offset, #f5f5f5);">
+              {% if item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 100%; height: 100%; object-fit: cover;" />
+              {% endif %}
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <h4 style="font-weight: 600; font-size: 14px; color: var(--text-main); margin: 0 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <a href="{% url 'product_detail' item.product.slug %}" style="color: inherit; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='inherit'">{{ item.product.name }}</a>
+              </h4>
+              <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 8px 0;">Stock: {{ item.product.stock_status }}</p>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 14px; font-weight: 700; color: var(--text-main);">₹{% if item.product.discount_price %}{{ item.product.discount_price }}{% else %}{{ item.product.price }}{% endif %}</span>
+              </div>
+            </div>
+            <button class="remove-wishlist-item" data-product-id="{{ item.product.id }}" style="position: absolute; top: 0; right: 0; background: transparent; border: none; font-size: 22px; line-height: 1; color: var(--text-muted); cursor: pointer; transition: color 0.2s;">&times;</button>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="cart-empty">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <p>Your wishlist is empty</p>
+          <a href="{% url 'product_list' %}" class="btn" style="text-decoration: none;">Explore Products</a>
+        </div>
+      {% endif %}
+    </div>
+  </aside>
+
+  <!-- Toast Notification -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Main JS -->
+  <script src="{% static 'js/script.js' %}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Handle click events for unauthenticated Cart & Wishlist
+      const unauthWishlist = document.querySelector('.unauth-wishlist');
+      const unauthCart = document.querySelector('.unauth-cart');
+
+      if (unauthWishlist) {
+        unauthWishlist.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (typeof showToast === 'function') {
+            showToast('Sign in or sign up first');
+          } else {
+            alert('Sign in or sign up first');
+          }
+          setTimeout(function() {
+            window.location.href = "{% provider_login_url 'google' %}";
+          }, 1200);
+        });
+      }
+
+      if (unauthCart) {
+        unauthCart.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (typeof showToast === 'function') {
+            showToast('Sign in or sign up first');
+          } else {
+            alert('Sign in or sign up first');
+          }
+          setTimeout(function() {
+            window.location.href = "{% provider_login_url 'google' %}";
+          }, 1200);
+        });
+      }
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

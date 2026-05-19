@@ -1,0 +1,640 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} | Vishakhan Clothings{% endblock %}
+
+{% block content %}
+<section class="section-pad" style="margin-top: 80px;">
+  <div class="container">
+    <div class="product-detail-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;">
+      
+      <!-- Product Images -->
+      <div class="product-gallery" style="position: sticky; top: 100px; z-index: 10;">
+          {% if product.image %}
+            <div style="display: flex; flex-direction: row; gap: 1.5rem; align-items: flex-start;">
+              <div class="thumbnail-grid" style="display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; height: calc(100vh - 120px); min-height: 500px; width: 80px; flex-shrink: 0; scrollbar-width: none; -ms-overflow-style: none;">
+                
+                <div class="thumbnail active" data-index="0" style="width: 80px; height: 100px; flex-shrink: 0; border-radius: 4px; overflow: hidden; background: #f5f5f5; cursor: pointer; border: 2px solid transparent; transition: border-color 0.3s;">
+                  <img src="{{ product.image.url }}" alt="{{ product.name }} thumbnail" style="width: 100%; height: 100%; object-fit: cover;" />
+                </div>
+
+                {% for variant in product.variants.all %}
+                  {% if variant.image %}
+                    <div class="thumbnail" data-index="{{ forloop.counter }}" style="width: 80px; height: 100px; flex-shrink: 0; border-radius: 4px; overflow: hidden; background: #f5f5f5; cursor: pointer; border: 2px solid transparent; transition: border-color 0.3s;">
+                      <img src="{{ variant.image.url }}" alt="{{ product.name }} variant thumbnail" style="width: 100%; height: 100%; object-fit: cover;" />
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <div class="main-image-container" style="flex: 1; position: relative; border-radius: 8px; overflow: hidden; background: #f5f5f5; height: calc(100vh - 120px); min-height: 500px; cursor: zoom-in;">
+                <img id="mainDisplayImage" src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.5s ease, transform 0.2s ease-out;" />
+                {% if product.discount_price %}
+                  <span style="position: absolute; top: 20px; right: 20px; background: var(--error); color: white; padding: 5px 12px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; z-index: 10;">
+                    {{ product.discount_percentage }}% OFF
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+          {% else %}
+            <div class="main-image" style="height: 600px; background: #f5f5f5; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #999;">
+              No image available
+            </div>
+          {% endif %}
+      </div>
+
+      <!-- Product Info -->
+      <div class="product-details">
+        <div class="breadcrumbs" style="margin-bottom: 1rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted);">
+          <a href="{% url 'home' %}" style="color: inherit;">Home</a> / 
+          {% if product.category %}
+            <a href="{% url 'category_detail' product.category.slug %}" style="color: inherit;">{{ product.category.name }}</a> /
+          {% endif %}
+          <span style="color: var(--text-main);">{{ product.name }}</span>
+        </div>
+        
+        <!-- Product Header and Alert Row -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; margin-bottom: 1.5rem;">
+          <div>
+            <h1 style="font-family: var(--font-serif); font-size: 3rem; margin: 0 0 0.5rem 0; color: var(--text-main);">{{ product.name }}</h1>
+            
+            <!-- Rating Summary -->
+            <div class="product-rating" style="display: flex; align-items: center; gap: 10px;">
+              <div class="stars" style="color: #fbbf24; display: flex; gap: 2px;">
+                {% with rating=product.avg_rating|default:3 %}
+                  {% for i in "12345" %}
+                    <span class="star" style="font-size: 1.1rem; {% if forloop.counter > rating %}color: #ddd;{% endif %}">★</span>
+                  {% endfor %}
+                {% endwith %}
+              </div>
+            </div>
+          </div>
+
+          <!-- In Cart Status Alert -->
+          <div id="cartStatusAlert" style="{% if is_in_cart %}display: flex;{% else %}display: none;{% endif %} align-items: center; gap: 12px; background: rgba(var(--accent-rgb, 10, 10, 10), 0.05); border: 1.5px solid var(--accent); padding: 10px 16px; border-radius: 12px; max-width: 320px; flex-shrink: 0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="flex-shrink: 0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <div style="flex: 1;">
+              <p style="font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin: 0;">Already in Your Bag</p>
+              <p style="font-size: 0.76rem; color: var(--text-muted); margin: 2px 0 0 0; line-height: 1.3;">Select other sizes or colors below if desired.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="price-block" style="font-size: 1.8rem; font-weight: 600; margin-bottom: 2rem; display: flex; align-items: center; gap: 15px;">
+          <span style="{% if product.discount_price %}color: var(--error);{% else %}color: var(--text-main);{% endif %}" id="mainPrice">
+            ₹{% if product.discount_price %}{{ product.discount_price }}{% else %}{{ product.price }}{% endif %}
+          </span>
+          <span id="originalPrice" style="text-decoration: line-through; color: var(--text-muted); font-size: 1.3rem; font-weight: 400; {% if not product.discount_price %}display: none;{% endif %}">
+            ₹{{ product.price }}
+          </span>
+        </div>
+
+        <div class="description" style="line-height: 1.8; color: var(--text-muted); margin-bottom: 2.5rem; font-size: 1.05rem;">
+          {{ product.description|linebreaks }}
+        </div>
+
+        <!-- Step 1: Select Size -->
+        {% if product.variants.exists %}
+        <div class="product-variants" style="margin-bottom: 2.5rem;">
+          
+          <!-- Size & Quantity Row -->
+          <div style="display: flex; align-items: flex-end; gap: 2rem; flex-wrap: wrap; margin-bottom: 25px;">
+            <!-- Size Selection -->
+            <div style="flex: 1; min-width: 200px;">
+              <h4 style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); font-weight: 700; margin-bottom: 10px;">Size</h4>
+              <div class="size-selector" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                {% for size_key in unique_sizes %}
+                <div class="size-capsule" data-size="{{ size_key }}" 
+                     style="cursor: pointer; padding: 8px 16px; border: 1.5px solid var(--border); border-radius: 30px; background: var(--bg-offset); transition: all 0.2s; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">
+                  {% if size_key == 'CUSTOM' %}Custom size{% else %}{{ size_key }}{% endif %}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Quantity Selection (Visible only when variant selected) -->
+            <div id="quantitySelectorWrap" class="quantity-selector-wrap" style="display: none; align-items: center; gap: 1.5rem;">
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <h4 style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); font-weight: 700; margin-bottom: 6px;">Quantity</h4>
+                <div class="quantity-control" style="display: inline-flex; align-items: center; border: 1.5px solid var(--border); border-radius: 30px; background: var(--bg-offset); padding: 4px;">
+                  <button type="button" id="qtyDecrypt" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 600; color: var(--text-main); border: none; background: transparent; cursor: pointer; transition: opacity 0.2s; user-select: none;">−</button>
+                  <input type="number" id="productQty" name="quantity" value="1" min="1" max="1" style="width: 50px; text-align: center; font-weight: 700; font-size: 1rem; border: none; background: transparent; color: var(--text-main); -moz-appearance: textfield; pointer-events: none;" readonly>
+                  <button type="button" id="qtyEncrypt" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 600; color: var(--text-main); border: none; background: transparent; cursor: pointer; transition: opacity 0.2s; user-select: none;">+</button>
+                </div>
+              </div>
+              <div id="stockInfoBlock" 
+                   style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500; align-self: flex-end; margin-bottom: 12px; display: none;">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Step 2: Select Color (Filtered by Size) -->
+          <div id="colorSelectorContainer" style="display: none; margin-bottom: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+            <h4 style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">Color</h4>
+            <div id="variantGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px;">
+              {% for variant in product.variants.all %}
+              <div class="variant-card selectable-variant {% if variant.stock_status == 'OUT_OF_STOCK' %}disabled{% endif %}" 
+                   data-variant-id="{{ variant.id }}" 
+                   data-size="{{ variant.size }}"
+                   data-price="{{ variant.final_price }}"
+                   data-original-price="{{ variant.price|default:product.price }}"
+                   data-has-discount="{% if variant.allow_discount and product.discount_price %}true{% else %}false{% endif %}"
+                   data-stock-status="{{ variant.stock_status }}"
+                   data-stock="{{ variant.stock }}"
+                   data-in-cart="{% if variant.id in cart_variant_ids %}true{% else %}false{% endif %}"
+                   {% if variant.image %}data-image="{{ variant.image.url }}"{% endif %}
+                   style="display: none; cursor: pointer; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--bg-offset); transition: all 0.2s; position: relative; flex-direction: column; gap: 2px; {% if variant.stock_status == 'OUT_OF_STOCK' %}opacity: 0.4; cursor: not-allowed;{% endif %}">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-weight: 700; color: var(--text-main); font-size: 0.85rem;">{{ variant.color }}</span>
+                  <div style="display: flex; align-items: center; gap: 5px;">
+                    <span class="in-bag-badge" style="font-size: 0.65rem; color: var(--accent); font-weight: 700; {% if variant.id not in cart_variant_ids %}display: none;{% endif %}">In Bag</span>
+                    <div style="width: 6px; height: 6px; border-radius: 50%; background: {% if variant.stock_status == 'IN_STOCK' %}var(--success){% elif variant.stock_status == 'LIMITED' %}#f39c12{% else %}var(--error){% endif %};"></div>
+                  </div>
+                </div>
+                
+                <div style="font-weight: 700; font-size: 0.9rem; margin-top: 4px;">
+                  {% if variant.allow_discount and product.discount_price %}
+                    <span style="color: var(--error);">₹{{ variant.final_price }}</span>
+                    <span style="text-decoration: line-through; color: var(--text-muted); font-size: 0.75rem; font-weight: 400; margin-left: 5px;">₹{{ variant.price|default:product.price }}</span>
+                  {% else %}
+                    <span style="color: var(--text-main);">₹{{ variant.final_price }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          
+          <!-- Custom Size Input -->
+          <div id="customSizeContainer" style="display: none; margin-top: 20px; padding: 15px; background: var(--bg-offset); border-radius: 10px; border: 1px solid var(--border);">
+            <label for="customSizeInput" style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">Enter Your Custom Size</label>
+            <input type="text" id="customSizeInput" name="custom_size_details" placeholder="e.g. 28, 30, 32" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-main); color: var(--text-main); font-size: 0.9rem;">
+          </div>
+
+          <input type="hidden" name="variant_id" id="selectedVariantId" value="">
+        </div>
+        {% endif %}
+
+        <div class="actions" style="display: flex; gap: 1rem; margin-bottom: 3rem;">
+          <button class="btn btn--full detail-add-to-bag" data-product-id="{{ product.id }}" style="flex: 1; padding: 18px;" {% if not product.variants.exists or product.stock_status == 'OUT_OF_STOCK' %}disabled{% endif %}>
+            {% if not product.variants.exists or product.stock_status == 'OUT_OF_STOCK' %}Out of Stock{% else %}Select Size & Color then add to bag{% endif %}
+          </button>
+          <button class="btn btn--outline detail-wishlist-btn {% if product.id in wishlist_product_ids %}active{% endif %}" data-product-id="{{ product.id }}" style="width: 60px; padding: 0;" title="Add to Wishlist">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="{% if product.id in wishlist_product_ids %}var(--error){% else %}none{% endif %}" stroke="{% if product.id in wishlist_product_ids %}var(--error){% else %}currentColor{% endif %}" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+        </div>
+
+        <div class="product-meta" style="font-size: 0.9rem; color: var(--text-muted); display: grid; gap: 0.8rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+          <!-- <p><strong style="color: var(--text-main);">SKU:</strong> {{ product.sku }}</p> -->
+          <p><strong style="color: var(--text-main);">Category:</strong> <a href="{% url 'category_detail' product.category.slug %}" style="color: inherit; text-decoration: underline;">{{ product.category.name }}</a></p>
+          <p><strong style="color: var(--text-main);">Availability:</strong> 
+             <span id="availabilityStatus" 
+                   style="{% if not product.variants.exists %}color: var(--error);{% else %}color: var(--text-muted);{% endif %} font-weight: 600;">
+               {% if not product.variants.exists %}Out Of Stock{% else %}Select size and color{% endif %}
+             </span>
+          </p>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="product-reviews-section" style="margin-top: 4rem; padding-top: 3rem; border-top: 1px solid var(--border);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+            <div>
+              <h2 style="font-family: var(--font-serif); font-size: 2rem; margin-bottom: 10px;">Customer <em>Reviews</em></h2>
+              <p style="color: var(--text-muted);">What our community says about this piece.</p>
+            </div>
+            {% if not user_review or not user_review.comment %}
+              <button id="writeReviewBtn" class="btn btn--sm btn--outline">Write a Review</button>
+            {% endif %}
+          </div>
+
+          <!-- Write a Review Form Container (Hidden by default) -->
+          <div id="writeReviewFormContainer" style="display: none; margin-bottom: 2.5rem; padding: 25px; background: var(--bg-offset); border-radius: 12px; border: 1.5px solid var(--accent); transition: all 0.3s ease;">
+            <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 15px; color: var(--text-main);">Share Your Review</h3>
+            {% if user.is_authenticated %}
+              <form id="reviewSubmitForm" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                
+                <!-- Star Rating selector -->
+                <div style="margin-bottom: 20px;">
+                  <label style="display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); font-weight: 700; margin-bottom: 8px;">Your Rating</label>
+                  <div class="star-rating-selector" style="display: flex; gap: 8px; color: #ddd; font-size: 1.8rem; cursor: pointer; user-select: none;">
+                    <span class="rate-star" data-rating="1" style="transition: color 0.2s;">★</span>
+                    <span class="rate-star" data-rating="2" style="transition: color 0.2s;">★</span>
+                    <span class="rate-star" data-rating="3" style="transition: color 0.2s;">★</span>
+                    <span class="rate-star" data-rating="4" style="transition: color 0.2s;">★</span>
+                    <span class="rate-star" data-rating="5" style="transition: color 0.2s;">★</span>
+                  </div>
+                  <input type="hidden" id="selectedReviewRating" name="rating" value="">
+                </div>
+
+                <!-- Review text comment -->
+                <div style="margin-bottom: 20px;">
+                  <label for="reviewCommentField" style="display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); font-weight: 700; margin-bottom: 8px;">Your Review</label>
+                  <textarea id="reviewCommentField" name="comment" placeholder="Tell us what you liked or disliked about this item. How is the fit, fabric, and quality? (Optional)" style="width: 100%; min-height: 120px; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-main); color: var(--text-main); font-family: inherit; font-size: 0.95rem; line-height: 1.6; resize: vertical; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 15px;">
+                  <button type="submit" class="btn btn--sm" style="padding: 12px 24px;">Submit Review</button>
+                  <button type="button" id="cancelReviewBtn" class="btn btn--sm btn--outline" style="padding: 12px 24px;">Cancel</button>
+                </div>
+              </form>
+            {% else %}
+              <div style="text-align: center; padding: 20px;">
+                <p style="color: var(--text-muted); margin-bottom: 15px;">Please sign in or sign up to submit a review for this product.</p>
+                <button type="button" class="btn btn--sm nav-auth-trigger" style="padding: 12px 24px;">Sign In / Sign Up</button>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="reviews-list" style="display: grid; gap: 1.5rem;">
+            {% for review in product.reviews.all %}
+              <div class="review-item" style="padding: 20px; background: var(--bg-offset); border-radius: 12px; border: 1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                  <div>
+                    <div class="review-stars" style="color: #fbbf24; margin-bottom: 5px;">
+                      {% for i in "12345" %}
+                        <span style="font-size: 0.9rem; {% if forloop.counter > review.rating %}color: #ddd;{% endif %}">★</span>
+                      {% endfor %}
+                    </div>
+                    <h4 style="font-weight: 700; font-size: 1.1rem; color: var(--text-main);">{{ review.user.get_full_name|default:review.user.username }}</h4>
+                  </div>
+                  <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">{{ review.created_at|date:"M d, Y" }}</span>
+                    {% if review.user == request.user %}
+                      <button class="delete-review-btn" data-product-id="{{ product.id }}" style="background: transparent; border: none; color: var(--error); cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; font-weight: 600; padding: 0; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                      </button>
+                    {% endif %}
+                  </div>
+                </div>
+                <p style="color: var(--text-muted); line-height: 1.6;">{{ review.comment }}</p>
+              </div>
+            {% empty %}
+              <div style="text-align: center; padding: 3rem; background: var(--bg-offset); border-radius: 12px; border: 1px dashed var(--border);">
+                <p style="color: var(--text-muted); font-style: italic;">No reviews yet. Be the first to share your thoughts!</p>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .thumbnail-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .thumbnail.active {
+    border-color: var(--accent) !important;
+  }
+  .thumbnail:hover {
+    border-color: var(--accent-light) !important;
+  }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Thumbnail Gallery Logic
+    const mainImg = document.getElementById('mainDisplayImage');
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    const thumbImages = Array.from(thumbnails).map(t => t.querySelector('img').src);
+    let currentIndex = 0;
+
+    function updateMainImage(index) {
+      if (!mainImg || thumbImages.length === 0) return;
+      currentIndex = index;
+      mainImg.style.opacity = '0.4';
+      setTimeout(() => {
+        mainImg.src = thumbImages[currentIndex];
+        mainImg.style.opacity = '1';
+        thumbnails.forEach((t, i) => {
+          if (i === currentIndex) t.classList.add('active');
+          else t.classList.remove('active');
+        });
+      }, 200);
+    }
+
+    thumbnails.forEach((thumb, idx) => {
+      thumb.addEventListener('click', () => {
+        updateMainImage(idx);
+        resetTimer();
+      });
+    });
+
+    let scrollInterval = setInterval(() => {
+      if (thumbImages.length > 1) {
+        let nextIndex = (currentIndex + 1) % thumbImages.length;
+        updateMainImage(nextIndex);
+      }
+    }, 15000);
+
+    function resetTimer() {
+      clearInterval(scrollInterval);
+      scrollInterval = setInterval(() => {
+        if (thumbImages.length > 1) {
+          let nextIndex = (currentIndex + 1) % thumbImages.length;
+          updateMainImage(nextIndex);
+        }
+      }, 15000);
+    }
+
+    // Image Zoom on Hover
+    const mainImgContainer = document.querySelector('.main-image-container');
+    if (mainImgContainer && mainImg) {
+      mainImgContainer.addEventListener('mousemove', (e) => {
+        const rect = mainImgContainer.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const xPercent = (x / rect.width) * 100;
+        const yPercent = (y / rect.height) * 100;
+        
+        mainImg.style.transformOrigin = `${xPercent}% ${yPercent}%`;
+        mainImg.style.transform = 'scale(2)';
+      });
+      
+      mainImgContainer.addEventListener('mouseleave', () => {
+        mainImg.style.transformOrigin = 'center center';
+        mainImg.style.transform = 'scale(1)';
+      });
+    }
+
+    function resetToProductDefault() {
+      const hasVariants = {% if product.variants.exists %}true{% else %}false{% endif %};
+
+      // 1. Reset Availability
+      const availabilityEl = document.getElementById('availabilityStatus');
+      if (availabilityEl) {
+        if (hasVariants) {
+          availabilityEl.style.color = 'var(--text-muted)';
+          availabilityEl.innerText = 'Select size and color';
+        } else {
+          availabilityEl.style.color = 'var(--error)';
+          availabilityEl.innerText = 'Out Of Stock';
+        }
+      }
+
+      // 2. Reset Price Block
+      const mainPriceEl = document.getElementById('mainPrice');
+      const originalPriceEl = document.getElementById('originalPrice');
+      const defaultPrice = "{{ product.price }}";
+      const defaultDiscountPrice = "{% if product.discount_price %}{{ product.discount_price }}{% endif %}";
+
+      if (mainPriceEl) {
+        if (defaultDiscountPrice) {
+          mainPriceEl.innerText = '₹' + defaultDiscountPrice;
+          mainPriceEl.style.color = 'var(--error)';
+        } else {
+          mainPriceEl.innerText = '₹' + defaultPrice;
+          mainPriceEl.style.color = 'var(--text-main)';
+        }
+      }
+      if (originalPriceEl) {
+        if (defaultDiscountPrice) {
+          originalPriceEl.innerText = '₹' + defaultPrice;
+          originalPriceEl.style.display = 'inline-block';
+        } else {
+          originalPriceEl.style.display = 'none';
+        }
+      }
+
+      // 3. Reset Stock Block & Quantity selector limit
+      const stockInfoBlock = document.getElementById('stockInfoBlock');
+      const qtyInput = document.getElementById('productQty');
+      const qtyWrap = document.getElementById('quantitySelectorWrap');
+
+      if (qtyWrap) {
+        qtyWrap.style.display = 'none';
+      }
+
+      if (qtyInput) {
+        qtyInput.value = '1';
+        qtyInput.setAttribute('max', '1');
+      }
+
+      if (stockInfoBlock) {
+        stockInfoBlock.style.display = 'none';
+      }
+      
+      // 4. Reset Add to Bag button
+      const addToBagBtn = document.querySelector('.actions .btn--full');
+      if (addToBagBtn) {
+        if (!hasVariants) {
+          addToBagBtn.disabled = true;
+          addToBagBtn.innerText = 'Out of Stock';
+        } else {
+          addToBagBtn.disabled = true;
+          addToBagBtn.innerText = 'Select Size & Color then add to bag';
+        }
+      }
+    }
+
+    // 2. Tiered Variant Selection Logic
+    const sizeCapsules = document.querySelectorAll('.size-capsule');
+    const variantCards = document.querySelectorAll('.selectable-variant');
+    const colorSelectorContainer = document.getElementById('colorSelectorContainer');
+    const customSizeContainer = document.getElementById('customSizeContainer');
+    const customSizeInput = document.getElementById('customSizeInput');
+    const selectedVariantId = document.getElementById('selectedVariantId');
+    const mainPrice = document.getElementById('mainPrice');
+    const addToBagBtn = document.querySelector('.actions .btn--full');
+
+    sizeCapsules.forEach(capsule => {
+      capsule.addEventListener('click', function() {
+        const selectedSize = this.getAttribute('data-size');
+
+        // Toggle Capsule Style
+        sizeCapsules.forEach(c => {
+          c.style.borderColor = 'var(--border)';
+          c.style.background = 'var(--bg-offset)';
+          c.style.color = 'var(--text-main)';
+        });
+        this.style.borderColor = 'var(--accent)';
+        this.style.background = 'var(--accent)';
+        this.style.color = 'white';
+
+        // Show Color Selector
+        colorSelectorContainer.style.display = 'block';
+
+        // Filter Variant Cards
+        let firstVisible = null;
+        variantCards.forEach(card => {
+          if (card.getAttribute('data-size') === selectedSize) {
+            card.style.display = 'flex';
+            if (!firstVisible) firstVisible = card;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        // Handle Custom Size Input
+        if (selectedSize === 'CUSTOM') {
+          customSizeContainer.style.display = 'block';
+          customSizeInput.required = true;
+        } else {
+          customSizeContainer.style.display = 'none';
+          customSizeInput.required = false;
+          customSizeInput.value = '';
+        }
+
+        // Reset Selection
+        selectedVariantId.value = '';
+        variantCards.forEach(c => {
+          c.style.borderColor = 'var(--border)';
+          c.style.boxShadow = 'none';
+          c.style.background = 'var(--bg-offset)';
+        });
+        resetToProductDefault();
+      });
+    });
+
+    variantCards.forEach(card => {
+      card.addEventListener('click', function() {
+        if (this.classList.contains('disabled')) return;
+
+        // Highlight selection
+        variantCards.forEach(c => {
+          c.style.borderColor = 'var(--border)';
+          c.style.boxShadow = 'none';
+          c.style.background = 'var(--bg-offset)';
+        });
+        this.style.borderColor = 'var(--accent)';
+        this.style.boxShadow = '0 0 0 1px var(--accent)';
+        this.style.background = 'var(--bg-main)';
+
+        // Update state
+        const vId = this.getAttribute('data-variant-id');
+        const price = this.getAttribute('data-price');
+        const originalPrice = this.getAttribute('data-original-price');
+        const hasDiscount = this.getAttribute('data-has-discount') === 'true';
+        const stockStatus = this.getAttribute('data-stock-status');
+
+        selectedVariantId.value = vId;
+
+        // Show Quantity Selection container
+        const qtyWrap = document.getElementById('quantitySelectorWrap');
+        if (qtyWrap) {
+          qtyWrap.style.display = 'flex';
+        }
+        
+        // Update main pricing block dynamically
+        const mainPriceEl = document.getElementById('mainPrice');
+        const originalPriceEl = document.getElementById('originalPrice');
+        if (mainPriceEl) {
+          mainPriceEl.innerText = '₹' + price;
+          if (hasDiscount) {
+            mainPriceEl.style.color = 'var(--error)';
+          } else {
+            mainPriceEl.style.color = 'var(--text-main)';
+          }
+        }
+        if (originalPriceEl) {
+          if (hasDiscount) {
+            originalPriceEl.innerText = '₹' + originalPrice;
+            originalPriceEl.style.display = 'inline-block';
+          } else {
+            originalPriceEl.style.display = 'none';
+          }
+        }
+
+        const variantImage = this.getAttribute('data-image');
+        if (variantImage) {
+          const thumbIdx = thumbImages.findIndex(src => src.endsWith(variantImage) || variantImage.endsWith(src));
+          if (thumbIdx !== -1) {
+            updateMainImage(thumbIdx);
+            resetTimer();
+          } else {
+            mainImg.style.opacity = '0.4';
+            setTimeout(() => {
+              mainImg.src = variantImage;
+              mainImg.style.opacity = '1';
+            }, 200);
+          }
+        } else {
+          // Revert to primary image if variant has no specific image
+          if (thumbImages.length > 0) {
+            updateMainImage(0);
+            resetTimer();
+          }
+        }
+
+        const stockVal = parseInt(this.getAttribute('data-stock')) || 0;
+
+        const availabilityEl = document.getElementById('availabilityStatus');
+        if (availabilityEl) {
+          if (stockStatus === 'IN_STOCK') {
+            availabilityEl.style.color = 'var(--success)';
+            availabilityEl.innerText = 'In Stock';
+          } else if (stockStatus === 'LIMITED') {
+            availabilityEl.style.color = '#f39c12';
+            availabilityEl.innerText = 'Limited';
+          } else {
+            availabilityEl.style.color = 'var(--error)';
+            availabilityEl.innerText = 'Out Of Stock';
+          }
+        }
+
+        const stockInfoBlock = document.getElementById('stockInfoBlock');
+        const variantStockCount = document.getElementById('variantStockCount');
+        const maxOrderLimit = document.getElementById('maxOrderLimit');
+        const qtyInput = document.getElementById('productQty');
+
+        const maxLimit = stockVal > 1 ? stockVal - 1 : 1;
+
+        if (qtyInput) {
+          qtyInput.value = '1';
+          qtyInput.setAttribute('max', maxLimit);
+        }
+
+        if (stockInfoBlock) {
+          if (stockVal > 0) {
+            stockInfoBlock.style.display = 'block';
+            if (variantStockCount) variantStockCount.innerText = stockVal;
+            if (maxOrderLimit) maxOrderLimit.innerText = maxLimit;
+          } else {
+            stockInfoBlock.style.display = 'none';
+          }
+        }
+
+        if (stockStatus === 'OUT_OF_STOCK') {
+          addToBagBtn.disabled = true;
+          addToBagBtn.innerText = 'Out of Stock';
+        } else {
+          addToBagBtn.disabled = false;
+          addToBagBtn.innerText = 'Add to Bag';
+        }
+      });
+    });
+
+    // 3. Quantity Selector Controls
+    const qtyInput = document.getElementById('productQty');
+    const qtyDecrypt = document.getElementById('qtyDecrypt');
+    const qtyEncrypt = document.getElementById('qtyEncrypt');
+
+    if (qtyInput && qtyDecrypt && qtyEncrypt) {
+      qtyDecrypt.addEventListener('click', (e) => {
+        e.preventDefault();
+        let current = parseInt(qtyInput.value) || 1;
+        if (current > 1) {
+          qtyInput.value = current - 1;
+        }
+      });
+
+      qtyEncrypt.addEventListener('click', (e) => {
+        e.preventDefault();
+        let current = parseInt(qtyInput.value) || 1;
+        const maxLimit = parseInt(qtyInput.getAttribute('max')) || 1;
+        if (current < maxLimit) {
+          qtyInput.value = current + 1;
+        } else {
+          showToast('Maximum order quantity reached (must be less than available stock).');
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

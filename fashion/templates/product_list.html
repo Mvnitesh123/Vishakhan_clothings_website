@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shop All Products | Vishakhan Clothings{% endblock %}
+
+{% block content %}
+<!-- Page Hero -->
+<div style="background: #111; padding: 6rem 0 4rem; margin-top: 80px; text-align: center; color: #fff;">
+  <div class="container">
+    <p style="color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.3em; font-size: 0.75rem; margin-bottom: 1rem; font-weight: 600;">The Complete Collection</p>
+    <h1 style="font-family: var(--font-serif); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 400; line-height: 1.1; margin-bottom: 1.5rem;">Everything<br/><em>Curated</em></h1>
+    <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; max-width: 600px; margin: 0 auto; line-height: 1.6;">{{ page_subtitle }}</p>
+  </div>
+</div>
+
+<!-- Filter & Sort Bar -->
+<section class="filter-bar" style="background: var(--bg-main); border-bottom: 1px solid var(--border); position: sticky; top: 80px; z-index: 100;">
+  <div class="container" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 30px;">
+    
+    <div class="filter-group" style="display: flex; gap: 2rem; align-items: center;">
+      <!-- Category Custom Dropdown -->
+      <div class="custom-dropdown" id="categoryDropdown">
+        <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Category</span>
+        <div class="dropdown-trigger" style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
+          {% if current_category %}
+            {% for cat in all_categories %}{% if cat.slug == current_category %}{{ cat.name }}{% endif %}{% endfor %}
+          {% else %}
+            All Categories
+          {% endif %}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+        <div class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; background: var(--bg-main); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 10px 0; min-width: 200px; margin-top: 10px; border-radius: 4px;">
+          <a href="?sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if not current_category %}font-weight: 700; background: var(--bg-offset);{% endif %}">All Categories</a>
+          {% for cat in all_categories %}
+            <a href="?category={{ cat.slug }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_category == cat.slug %}font-weight: 700; background: var(--bg-offset);{% endif %}">{{ cat.name }}</a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Subcategory (Types) Custom Dropdown -->
+      {% if available_subcategories %}
+      <div class="custom-dropdown" id="subcategoryDropdown">
+        <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Collections</span>
+        <div class="dropdown-trigger" style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
+          {% if current_subcategory %}
+            {% for sub in available_subcategories %}{% if sub.slug == current_subcategory %}{{ sub.name }}{% endif %}{% endfor %}
+          {% else %}
+            All Collections
+          {% endif %}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+        <div class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; background: var(--bg-main); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 10px 0; min-width: 200px; margin-top: 10px; border-radius: 4px; z-index: 101;">
+          <a href="?category={{ current_category|default:'' }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if not current_subcategory %}font-weight: 700; background: var(--bg-offset);{% endif %}">All Types</a>
+          {% for sub in available_subcategories %}
+            <a href="?category={{ current_category|default:'' }}&subcategory={{ sub.slug }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_subcategory == sub.slug %}font-weight: 700; background: var(--bg-offset);{% endif %}">{{ sub.name }}</a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      <!-- Section Custom Dropdown -->
+      <div class="custom-dropdown" id="sectionDropdown">
+        <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Types</span>
+        <div class="dropdown-trigger" style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
+          {% if current_section == 'tops' %}Tops
+          {% elif current_section == 'bottoms' %}Bottom
+          {% else %}All Types{% endif %}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+        <div class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; background: var(--bg-main); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 10px 0; min-width: 200px; margin-top: 10px; border-radius: 4px; z-index: 101;">
+          <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if not current_section %}font-weight: 700; background: var(--bg-offset);{% endif %}">All Collections</a>
+          <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&section=tops&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_section == 'tops' %}font-weight: 700; background: var(--bg-offset);{% endif %}">Tops</a>
+          <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&section=bottoms&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_section == 'bottoms' %}font-weight: 700; background: var(--bg-offset);{% endif %}">Bottom</a>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column;">
+        <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Status</span>
+        <div style="display: flex; gap: 1.5rem; align-items: center;">
+          <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort={{ current_sort|default:'' }}&trending={% if current_trending %}false{% else %}true{% endif %}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" 
+             style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: {% if current_trending %}var(--accent){% else %}var(--text-main){% endif %};">
+            {% if current_trending %}★ Trending{% else %}Trending{% endif %}
+          </a>
+          <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={% if current_top_rated %}false{% else %}true{% endif %}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" 
+             style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: {% if current_top_rated %}var(--accent){% else %}var(--text-main){% endif %};">
+            {% if current_top_rated %}★ Top Rated{% else %}Top Rated{% endif %}
+          </a>
+        </div>
+      </div>
+
+      <!-- Advanced Filter Dropdown -->
+      <div class="custom-dropdown" id="filterDropdown">
+        <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Refine</span>
+        <div class="dropdown-trigger" style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
+          Price & Rating
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+        <div class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; background: var(--bg-main); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 25px; min-width: 280px; margin-top: 10px; border-radius: 4px; z-index: 101;">
+          <form method="GET" action="{% url 'product_list' %}">
+            <input type="hidden" name="category" value="{{ current_category|default:'' }}">
+            <input type="hidden" name="subcategory" value="{{ current_subcategory|default:'' }}">
+            <input type="hidden" name="section" value="{{ current_section|default:'' }}">
+            <input type="hidden" name="sort" value="{{ current_sort|default:'' }}">
+            <input type="hidden" name="trending" value="{{ current_trending|lower }}">
+            <input type="hidden" name="top_rated" value="{{ current_top_rated|lower }}">
+            
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Price Range</label>
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="number" name="min_price" placeholder="Min" value="{{ current_min_price|default:'' }}" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); background: var(--bg-offset); color: var(--text-main); font-size: 0.9rem; border-radius: 4px;">
+                <span style="color: var(--text-muted);">—</span>
+                <input type="number" name="max_price" placeholder="Max" value="{{ current_max_price|default:'' }}" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); background: var(--bg-offset); color: var(--text-main); font-size: 0.9rem; border-radius: 4px;">
+              </div>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+              <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Minimum Rating</label>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                {% for r in "43" %}
+                <label style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 8px; border: 1px solid {% if current_min_rating == r %}var(--accent){% else %}var(--border){% endif %}; border-radius: 4px; background: {% if current_min_rating == r %}var(--accent-light){% else %}transparent{% endif %}; color: {% if current_min_rating == r %}#111{% else %}var(--text-main){% endif %};">
+                  <input type="radio" name="min_rating" value="{{ r }}" {% if current_min_rating == r %}checked{% endif %} style="display: none;">
+                  {{ r }}★ & Up
+                </label>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+              <button type="submit" style="flex: 2; background: var(--primary); color: #fff; border: none; padding: 12px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 4px; cursor: pointer;">Apply</button>
+              <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&section={{ current_section|default:'' }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}" style="flex: 1; border: 1px solid var(--border); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; text-transform: uppercase; font-weight: 600; border-radius: 4px;">Reset</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {% if current_category or current_subcategory or current_section or current_trending or current_top_rated or current_min_price or current_max_price or current_min_rating %}
+        <a href="{% url 'product_list' %}" style="display: flex; align-items: center; gap: 6px; padding: 6px 14px; background: var(--bg-offset); border: 1px solid var(--border); border-radius: 40px; font-size: 0.75rem; color: var(--text-main); font-weight: 600; transition: all 0.3s ease;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          Clear All
+        </a>
+      {% endif %}
+    </div>
+
+    <!-- Sort Custom Dropdown -->
+    <div class="custom-dropdown" id="sortDropdown" style="text-align: right; position: relative;">
+      <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Sort By</span>
+      <div class="dropdown-trigger" style="cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
+        {% if current_sort == 'price_low' %}Price: Low to High
+        {% elif current_sort == 'price_high' %}Price: High to Low
+        {% elif current_sort == 'rating' %}Top Rated
+        {% elif current_sort == 'high_discount' %}High Discount
+        {% else %}Newest First{% endif %}
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="dropdown-menu" style="display: none; position: absolute; top: 100%; right: 0; background: var(--bg-main); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 10px 0; min-width: 180px; margin-top: 10px; border-radius: 4px; text-align: left; z-index: 101;">
+        <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=newest&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'newest' or not current_sort %}font-weight: 700; background: var(--bg-offset);{% endif %}">Newest First</a>
+        <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=price_low&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'price_low' %}font-weight: 700; background: var(--bg-offset);{% endif %}">Price: Low to High</a>
+        <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=price_high&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'price_high' %}font-weight: 700; background: var(--bg-offset);{% endif %}">Price: High to Low</a>
+        <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=rating&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'rating' %}font-weight: 700; background: var(--bg-offset);{% endif %}">Top Rated</a>
+        <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=high_discount&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'high_discount' %}font-weight: 700; background: var(--bg-offset);{% endif %}">High Discount</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- Products Section -->
+<section class="products-section section-pad reveal" style="padding-top: 4rem;">
+  <div class="container">
+    {% if products %}
+      <div class="products-grid">
+        {% for product in products %}
+        <article class="product-card">
+          <a href="{% url 'product_detail' product.slug %}" class="product-card-link">
+            <div class="product-img-wrap">
+              {% if product.image %}
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-img product-img--primary" loading="lazy" />
+                {% else %}
+                  <div class="product-img-placeholder"></div>
+                {% endif %}
+              
+              <!-- Badges -->
+              <div class="product-badges">
+                {% if product.discount_price %}
+                  <span class="badge-label badge-label--sale">{{ product.discount_percentage }}% Off</span>
+                {% endif %}
+                {% if product.is_trending %}
+                  <span class="badge-label" style="background: var(--primary); color: #fff;">Trending</span>
+                {% endif %}
+              </div>
+
+              <div class="product-actions-overlay">
+                <button class="card-action-btn wishlist-btn {% if product.id in wishlist_product_ids %}active{% endif %}" data-product-id="{{ product.id }}" title="Add to Wishlist">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="{% if product.id in wishlist_product_ids %}var(--error){% else %}none{% endif %}" stroke="{% if product.id in wishlist_product_ids %}var(--error){% else %}currentColor{% endif %}" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="product-info">
+              <span class="product-brand">{{ product.category.name }}</span>
+              <h3 class="product-name">{{ product.name }}</h3>
+              <div class="product-rating" style="display: flex; align-items: center; gap: 8px; margin-top: 6px; margin-bottom: 8px;">
+                <div class="stars" style="color: #fbbf24; display: flex; gap: 2px;">
+                  {% with rating=product.avg_rating|default:3 %}
+                    {% for i in "12345" %}
+                      <span class="star" style="font-size: 0.95rem; {% if forloop.counter > rating %}color: var(--border);{% endif %}">★</span>
+                    {% endfor %}
+                  {% endwith %}
+                </div>
+              </div>
+              <div class="product-price">
+                {% if product.discount_price %}
+                  <span class="price-current">₹{{ product.discount_price }}</span>
+                  <span class="price-original">₹{{ product.price }}</span>
+                {% else %}
+                  <span class="price-current">₹{{ product.price }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+          <a href="{% url 'product_detail' product.slug %}" class="add-to-cart-link">Add to Bag</a>
+        </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 100px 0;">
+        <p style="font-size: 1.2rem; color: var(--text-muted);">No products found matching your criteria.</p>
+        <a href="?" style="display: inline-block; margin-top: 20px; color: var(--primary); font-weight: 600; text-decoration: underline;">Clear all filters</a>
+      </div>
+    {% endif %}
+
+    <!-- Pagination -->
+    {% if products.has_other_pages %}
+    <div class="pagination-wrap" style="margin-top: 5rem; display: flex; justify-content: center; align-items: center; gap: 12px;">
+      {% if products.has_previous %}
+        <a href="?page={{ products.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 50%; color: var(--text-main); transition: all 0.3s ease;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        </a>
+      {% endif %}
+
+      {% for i in products.paginator.page_range %}
+        {% if products.number == i %}
+          <span class="page-link active" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: var(--primary); color: #fff; border-radius: 50%; font-weight: 600; font-size: 0.9rem;">{{ i }}</span>
+        {% elif i > products.number|add:'-3' and i < products.number|add:'3' %}
+          <a href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 50%; color: var(--text-main); transition: all 0.3s ease; font-size: 0.9rem;">{{ i }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if products.has_next %}
+        <a href="?page={{ products.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 50%; color: var(--text-main); transition: all 0.3s ease;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
