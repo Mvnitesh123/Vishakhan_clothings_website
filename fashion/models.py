@@ -6,6 +6,7 @@ from django.utils.text import slugify
 from django.core.validators import MinValueValidator, MaxValueValidator
 import uuid
 from cloudinary.models import CloudinaryField
+from django.contrib.postgres.fields import ArrayField
 from .fields import EncryptedCharField, EncryptedTextField
 
 
@@ -260,8 +261,69 @@ class Product(models.Model):
     def avg_rating(self, value):
         self._avg_rating = value
 
+    @property
+    def unique_colors(self):
+        """
+        Retrieves unique active color variants for this product along with their images.
+        Utilizes prefetched queries if active to avoid N+1 queries.
+        """
+        # Fetch variants list (using prefetch cache if available)
+        if hasattr(self, '_prefetched_objects_cache') and 'variants' in self._prefetched_objects_cache:
+            variants_list = self._prefetched_objects_cache['variants']
+        else:
+            variants_list = self.variants.filter(is_active=True)
+
+        # Map color names to image URLs (using prefetch cache if available)
+        color_imgs = {}
+        if hasattr(self, '_prefetched_objects_cache') and 'variant_images' in self._prefetched_objects_cache:
+            for vimg in self._prefetched_objects_cache['variant_images']:
+                if vimg.image:
+                    color_imgs[vimg.color] = vimg.image.url
+        else:
+            for vimg in self.variant_images.all():
+                if vimg.image:
+                    color_imgs[vimg.color] = vimg.image.url
+
+        unique = []
+        seen = set()
+        for variant in variants_list:
+            if variant.is_active and variant.color not in seen:
+                seen.add(variant.color)
+                img_url = color_imgs.get(variant.color)
+                unique.append({
+                    'color': variant.color,
+                    'image_url': img_url or (self.image.url if self.image else ''),
+                })
+        return unique
+
     def __str__(self):
         return self.name
+
+
+
+# =========================================================
+# PRODUCT VARIANT IMAGE MODEL
+# =========================================================
+
+class ProductVariantImage(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='variant_images'
+    )
+    color = models.CharField(max_length=50)
+    image = CloudinaryField(
+        'image',
+        folder='products/variants/',
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        unique_together = ['product', 'color']
+
+    def __str__(self):
+        return f"{self.product.name} - {self.color} Image"
 
 
 # =========================================================
@@ -283,7 +345,6 @@ class ProductVariant(models.Model):
         ('XL', 'XL'),
         ('2XL', '2XL'),
         ('3XL', '3XL'),
-        ('4XL', '4XL'),
         ('5XL', '5XL'),
         # Numeric Sizes (Pants)
         ('28', '28'),
@@ -294,13 +355,13 @@ class ProductVariant(models.Model):
         ('40', '40'),
         ('42', '42'),
         ('44', '44'),
-        ('CUSTOM', 'Custom size'),
     )
 
     size = models.CharField(
         max_length=20,
         choices=SIZE_CHOICES,
-        default='M'
+        null=True,
+        blank=True
     )
 
     color = models.CharField(max_length=50)
@@ -320,16 +381,15 @@ class ProductVariant(models.Model):
         blank=True
     )
 
-    image = CloudinaryField(
-        'image',
-        folder='products/variants/',
-        blank=True,
-        null=True
-    )
-
     is_active = models.BooleanField(default=True)
 
     allow_discount = models.BooleanField(default=True, verbose_name="Allow discount")
+
+    @property
+    def image(self):
+        # Retrieve the image associated with the product and color from ProductVariantImage model
+        variant_image = ProductVariantImage.objects.filter(product=self.product, color=self.color).first()
+        return variant_image.image if variant_image else None
 
     @property
     def final_price(self):
@@ -343,19 +403,22 @@ class ProductVariant(models.Model):
     def clean(self):
         from django.core.exceptions import ValidationError
         
-        if self.stock <= 0 and self.stock_status in ['IN_STOCK', 'LIMITED']:
-            raise ValidationError({
-                'stock_status': "Cannot set status to 'In Stock' or 'Limited' when stock is 0 or less. Please select 'Out Of Stock'."
-            })
+        # Auto-correct stock status based on stock quantity to prevent validation crashes on excluded fields
+        if self.stock <= 0:
+            self.stock_status = 'OUT_OF_STOCK'
+        elif self.stock < 5:
+            self.stock_status = 'LIMITED'
+        else:
+            self.stock_status = 'IN_STOCK'
 
         p_type = self.product.product_type
         
         # Validation Rules
         rules = {
-            'Shirt': ['M', 'L', 'XL', '2XL', 'CUSTOM'],
-            'Pant': ['28', '30', '32', '34', '36', '40', '42', '44', 'CUSTOM'],
-            'Shorts & Track': ['M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL', 'CUSTOM'],
-            'T-shirt': ['M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL', 'CUSTOM'],
+            'Shirt': ['M', 'L', 'XL', '2XL'],
+            'Pant': ['28', '30', '32', '34', '36', '40', '42', '44'],
+            'Shorts & Track': ['M', 'L', 'XL', '2XL', '3XL', '5XL'],
+            'T-shirt': ['M', 'L', 'XL', '2XL', '3XL', '5XL'],
         }
         
         allowed = rules.get(p_type, [])
@@ -374,6 +437,9 @@ class ProductVariant(models.Model):
             
         self.full_clean()
         super().save(*args, **kwargs)
+
+    class Meta:
+        unique_together = ['product', 'color', 'size']
 
     def __str__(self):
         return f"{self.product.name} - {self.size} - {self.color}"
@@ -436,6 +502,12 @@ class CartItem(models.Model):
     product_variant = models.ForeignKey(
         ProductVariant,
         on_delete=models.CASCADE
+    )
+
+    size = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True
     )
 
     quantity = models.PositiveIntegerField(default=1)
@@ -573,6 +645,12 @@ class OrderItem(models.Model):
         ProductVariant,
         on_delete=models.SET_NULL,
         null=True
+    )
+
+    size = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True
     )
 
     quantity = models.PositiveIntegerField()

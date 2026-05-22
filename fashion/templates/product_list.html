@@ -3,9 +3,98 @@
 
 {% block title %}Shop All Products | Vishakhan Clothings{% endblock %}
 
+{% block extra_css %}
+<style>
+  /* ===== Product List Page — Mobile Responsive ===== */
+  .product-list-hero {
+    background: #111;
+    padding: 6rem 0 4rem;
+    margin-top: 80px;
+    text-align: center;
+    color: #fff;
+  }
+
+  @media (max-width: 768px) {
+    .product-list-hero {
+      padding: 4rem 0 2.5rem;
+      margin-top: 64px;
+    }
+    .product-list-hero h1 {
+      font-size: clamp(1.8rem, 8vw, 3rem) !important;
+    }
+    .product-list-hero p {
+      font-size: 0.9rem !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .product-list-hero {
+      padding: 3rem 0 2rem;
+      margin-top: 58px;
+    }
+    .product-list-hero h1 {
+      font-size: 1.6rem !important;
+    }
+    .product-list-hero p {
+      font-size: 0.85rem !important;
+    }
+  }
+
+  /* Filter Bar */
+  .filter-bar-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 30px;
+    gap: 16px;
+  }
+
+  .filter-group-inner {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 768px) {
+    .filter-bar-inner {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 12px 16px;
+      gap: 12px;
+    }
+    .filter-group-inner {
+      gap: 12px;
+      width: 100%;
+    }
+    .filter-sort-wrapper {
+      width: 100%;
+    }
+    /* Make dropdowns touchable */
+    .custom-dropdown {
+      position: relative;
+    }
+    .dropdown-trigger {
+      padding: 6px 0;
+      min-height: 44px;
+      align-items: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .filter-bar-inner {
+      padding: 10px 12px;
+    }
+    .filter-group-inner {
+      gap: 8px;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Page Hero -->
-<div style="background: #111; padding: 6rem 0 4rem; margin-top: 80px; text-align: center; color: #fff;">
+<div class="product-list-hero">
   <div class="container">
     <p style="color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.3em; font-size: 0.75rem; margin-bottom: 1rem; font-weight: 600;">The Complete Collection</p>
     <h1 style="font-family: var(--font-serif); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 400; line-height: 1.1; margin-bottom: 1.5rem;">Everything<br/><em>Curated</em></h1>
@@ -15,9 +104,9 @@
 
 <!-- Filter & Sort Bar -->
 <section class="filter-bar" style="background: var(--bg-main); border-bottom: 1px solid var(--border); position: sticky; top: 80px; z-index: 100;">
-  <div class="container" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 30px;">
-    
-    <div class="filter-group" style="display: flex; gap: 2rem; align-items: center;">
+  <div class="container">
+    <div class="filter-bar-inner">
+      <div class="filter-group filter-group-inner">
       <!-- Category Custom Dropdown -->
       <div class="custom-dropdown" id="categoryDropdown">
         <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Category</span>
@@ -112,17 +201,17 @@
               </div>
             </div>
 
-            <div style="margin-bottom: 25px;">
-              <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Minimum Rating</label>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                {% for r in "43" %}
-                <label style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 8px; border: 1px solid {% if current_min_rating == r %}var(--accent){% else %}var(--border){% endif %}; border-radius: 4px; background: {% if current_min_rating == r %}var(--accent-light){% else %}transparent{% endif %}; color: {% if current_min_rating == r %}#111{% else %}var(--text-main){% endif %};">
-                  <input type="radio" name="min_rating" value="{{ r }}" {% if current_min_rating == r %}checked{% endif %} style="display: none;">
-                  {{ r }}★ & Up
-                </label>
-                {% endfor %}
-              </div>
-            </div>
+                  <div style="margin-bottom: 25px;">
+                    <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Minimum Rating</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                      {% for r in "43" %}
+                      <label style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 8px; border: 1px solid {% if current_min_rating == r %}var(--accent){% else %}var(--border){% endif %}; border-radius: 4px; background: {% if current_min_rating == r %}var(--accent-light){% else %}transparent{% endif %}; color: {% if current_min_rating == r %}#111{% else %}var(--text-main){% endif %};">
+                        <input type="radio" name="min_rating" value="{{ r }}" {% if current_min_rating == r %}checked{% endif %} style="display: none;">
+                        {{ r }}★ & Up
+                      </label>
+                      {% endfor %}
+                    </div>
+                  </div>
 
             <div style="display: flex; gap: 10px;">
               <button type="submit" style="flex: 2; background: var(--primary); color: #fff; border: none; padding: 12px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 4px; cursor: pointer;">Apply</button>
@@ -141,7 +230,7 @@
     </div>
 
     <!-- Sort Custom Dropdown -->
-    <div class="custom-dropdown" id="sortDropdown" style="text-align: right; position: relative;">
+    <div class="filter-sort-wrapper custom-dropdown" id="sortDropdown" style="text-align: right; position: relative;">
       <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Sort By</span>
       <div class="dropdown-trigger" style="cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
         {% if current_sort == 'price_low' %}Price: Low to High
@@ -159,6 +248,7 @@
         <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=high_discount&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'high_discount' %}font-weight: 700; background: var(--bg-offset);{% endif %}">High Discount</a>
       </div>
     </div>
+    </div><!-- /.filter-bar-inner -->
   </div>
 </section>
 
@@ -174,10 +264,18 @@
           <a href="{% url 'product_detail' product.slug %}" class="product-card-link">
             <div class="product-img-wrap">
               {% if product.image %}
-                  <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-img product-img--primary" loading="lazy" />
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-img product-img--primary" data-original-src="{{ product.image.url }}" loading="lazy" />
                 {% else %}
                   <div class="product-img-placeholder"></div>
                 {% endif %}
+              
+              {% if product.unique_colors %}
+                <div class="product-color-swatches">
+                  {% for color_item in product.unique_colors %}
+                    <span class="color-swatch-row">{{ color_item.color }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
               
               <!-- Badges -->
               <div class="product-badges">

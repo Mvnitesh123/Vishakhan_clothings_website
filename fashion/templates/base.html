@@ -152,7 +152,7 @@
                   <h4 class="mega-heading">Basic Offers</h4>
                   <ul>
                     {% for offer in basic_offers %}
-                    <li><a href="{% url 'product_detail' offer.slug %}">{{ offer.name|truncatechars:20 }}</a></li>
+                    <li><a href="{% url 'product_detail' offer.slug %}">{{ offer.name|truncatechars:20 }} <span style="color: #c5a059; font-size: 0.9em; font-weight: 600;">({{ offer.discount_percentage }}% OFF)</span></a></li>
                     {% endfor %}
                   </ul>
                 </div>
@@ -160,7 +160,7 @@
                   <h4 class="mega-heading">Premium Offers</h4>
                   <ul>
                     {% for offer in premium_offers %}
-                    <li><a href="{% url 'product_detail' offer.slug %}">{{ offer.name|truncatechars:20 }}</a></li>
+                    <li><a href="{% url 'product_detail' offer.slug %}">{{ offer.name|truncatechars:20 }} <span style="color: #c5a059; font-size: 0.9em; font-weight: 600;">({{ offer.discount_percentage }}% OFF)</span></a></li>
                     {% endfor %}
                   </ul>
                 </div>
@@ -180,18 +180,25 @@
             <a href="{% url 'product_list' %}?section=tops" class="nav-link">Tops</a>
             <div class="mega-menu">
               <div class="mega-inner">
+                {% for top in tops|slice:":3" %}
                 <div class="mega-col">
-                  <h4 class="mega-heading">Categories</h4>
+                  <h4 class="mega-heading"><a href="{% url 'product_list' %}?category={{ top.slug }}&section=tops" style="color: inherit; text-decoration: none;">{{ top.name }}</a></h4>
                   <ul>
-                    {% for top in tops|slice:":5" %}
-                    <li><a href="{% url 'product_list' %}?category={{ top.slug }}&section=tops">{{ top.name }}</a></li>
-                    {% empty %}
-                    <li><a href="#">T-Shirts</a></li>
-                    <li><a href="#">Shirts</a></li>
+                    {% for sub in top.subcategories.all %}
+                    <li><a href="{% url 'product_list' %}?subcategory={{ sub.slug }}&section=tops">{{ sub.name }}</a></li>
                     {% endfor %}
                   </ul>
                 </div>
+                {% empty %}
                 <div class="mega-col">
+                  <h4 class="mega-heading">Categories</h4>
+                  <ul>
+                    <li><a href="#">T-Shirts</a></li>
+                    <li><a href="#">Shirts</a></li>
+                  </ul>
+                </div>
+                {% endfor %}
+                {% comment %} <div class="mega-col">
                   <h4 class="mega-heading">Sports wear</h4>
                   <ul>
                     {% for sub in sport_wear_tops %}
@@ -200,7 +207,7 @@
                     <li><a href="#">Dry fit T-shirt</a></li>
                     {% endfor %}
                   </ul>
-                </div>
+                </div> {% endcomment %}
                 <div class="mega-col mega-featured">
                   <div class="mega-banner mega-banner--tops">
                     <div class="mega-banner-img" style="background-image: url('{% static 'images/tops.jpg' %}');"></div>
@@ -217,17 +224,24 @@
             <a href="{% url 'product_list' %}?section=bottoms" class="nav-link">Bottoms</a>
             <div class="mega-menu">
               <div class="mega-inner">
+                {% for bottom in bottoms|slice:":3" %}
                 <div class="mega-col">
-                  <h4 class="mega-heading">Categories</h4>
+                  <h4 class="mega-heading"><a href="{% url 'product_list' %}?category={{ bottom.slug }}&section=bottoms" style="color: inherit; text-decoration: none;">{{ bottom.name }}</a></h4>
                   <ul>
-                    {% for bottom in bottoms|slice:":5" %}
-                    <li><a href="{% url 'product_list' %}?category={{ bottom.slug }}&section=bottoms">{{ bottom.name }}</a></li>
-                    {% empty %}
-                    <li><a href="#">Jeans</a></li>
-                    <li><a href="#">Trousers</a></li>
+                    {% for sub in bottom.subcategories.all %}
+                    <li><a href="{% url 'product_list' %}?subcategory={{ sub.slug }}&section=bottoms">{{ sub.name }}</a></li>
                     {% endfor %}
                   </ul>
                 </div>
+                {% empty %}
+                <div class="mega-col">
+                  <h4 class="mega-heading">Categories</h4>
+                  <ul>
+                    <li><a href="#">Jeans</a></li>
+                    <li><a href="#">Trousers</a></li>
+                  </ul>
+                </div>
+                {% endfor %}
                 <div class="mega-col">
                   <h4 class="mega-heading">Sports wear</h4>
                   <ul>
@@ -235,6 +249,7 @@
                     <li><a href="{% url 'product_list' %}?subcategory={{ sub.slug }}&section=bottoms">{{ sub.name }}</a></li>
                     {% empty %}
                     <li><a href="#">Shorts</a></li>
+                    <li><a href="#">Tracks</a></li>
                     {% endfor %}
                   </ul>
                 </div>
@@ -359,58 +374,227 @@
       <button class="drawer-close" id="drawerClose">×</button>
     </div>
     <ul class="drawer-nav">
-      <li class="has-submenu">
-        <a href="{% url 'search' %}?group=offers" class="submenu-trigger">Offers <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron"><polyline points="6 9 12 15 18 9"/></svg></a>
-        <ul class="submenu">
-          <li><a href="#">Flash Sale</a></li>
-          <li><a href="#">Up to 70% Off</a></li>
-          <li><a href="#">Clearance</a></li>
-          <li><a href="#">Bundle Offers</a></li>
-        </ul>
-      </li>
-      <li class="has-submenu">
-        <a href="{% url 'product_list' %}?section=tops" class="submenu-trigger">Tops <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron"><polyline points="6 9 12 15 18 9"/></svg></a>
-        <ul class="submenu">
-          <li><a href="#">T-Shirts</a></li>
-          <li><a href="#">Shirts</a></li>
-          <li><a href="#">Polo Shirts</a></li>
-          <li><a href="#">Hoodies</a></li>
-          <li><a href="#">Blouses</a></li>
-          <li><a href="#">Crop Tops</a></li>
-        </ul>
-      </li>
-      <li class="has-submenu">
-        <a href="{% url 'product_list' %}?section=bottoms" class="submenu-trigger">Bottoms <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron"><polyline points="6 9 12 15 18 9"/></svg></a>
-        <ul class="submenu">
-          <li><a href="#">Jeans</a></li>
-          <li><a href="#">Trousers</a></li>
-          <li><a href="#">Chinos</a></li>
-          <li><a href="#">Joggers</a></li>
-          <li><a href="#">Skirts</a></li>
-          <li><a href="#">Denim</a></li>
-        </ul>
-      </li>
-      <li class="has-submenu">
-        <a href="#" class="submenu-trigger">Brands <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron"><polyline points="6 9 12 15 18 9"/></svg></a>
-        <ul class="submenu">
-          <div class="mobile-brands-grid">
-            {% if brands %}
-              {% for brand in brands %}<li><a href="#">{{ brand.name }}</a></li>{% endfor %}
-            {% else %}
-              <li><a href="#">Zara</a></li>
-              <li><a href="#">H&M</a></li>
-              <li><a href="#">Nike</a></li>
-              <li><a href="#">Adidas</a></li>
-              <li><a href="#">Levi's</a></li>
-              <li><a href="#">Mango</a></li>
-            {% endif %}
-          </div>
-        </ul>
-      </li>
+            <li class="nav-item has-mega">
+              <a
+                href="{% url 'product_list' %}?sort=high_discount"
+                class="nav-link"
+                >Offers</a
+              >
+              <div class="mega-menu">
+                <div class="mega-inner">
+                  <div class="mega-col">
+                    <h4 class="mega-heading">Basic Offers</h4>
+                    <ul>
+                      {% for offer in basic_offers %}
+                      <li>
+                        <a href="{% url 'product_detail' offer.slug %}"
+                          >{{ offer.name|truncatechars:20 }}
+                          <span
+                            style="
+                              color: #c5a059;
+                              font-size: 0.9em;
+                              font-weight: 600;
+                            "
+                            >({{ offer.discount_percentage }}% OFF)</span
+                          ></a
+                        >
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  <div class="mega-col">
+                    <h4 class="mega-heading">Premium Offers</h4>
+                    <ul>
+                      {% for offer in premium_offers %}
+                      <li>
+                        <a href="{% url 'product_detail' offer.slug %}"
+                          >{{ offer.name|truncatechars:20 }}
+                          <span
+                            style="
+                              color: #c5a059;
+                              font-size: 0.9em;
+                              font-weight: 600;
+                            "
+                            >({{ offer.discount_percentage }}% OFF)</span
+                          ></a
+                        >
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  <div class="mega-col mega-featured">
+                    <div class="mega-banner mega-banner--offers">
+                      <div
+                        class="mega-banner-img"
+                        style="
+                          background-image: url('{% static 'images/offer.jpg' %}');
+                        "
+                      ></div>
+                      <span>Explore offers</span>
+                      <p>Shop the season's best deals</p>
+                      <a
+                        href="{% url 'product_list' %}?sort=high_discount"
+                        class="mega-cta"
+                        >Shop Now →</a
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+
+            <li class="nav-item has-mega">
+              <a href="{% url 'product_list' %}?section=tops" class="nav-link"
+                >Tops</a
+              >
+              <div class="mega-menu">
+                <div class="mega-inner">
+                  {% for top in tops|slice:":3" %}
+                  <div class="mega-col">
+                    <h4 class="mega-heading">
+                      <a
+                        href="{% url 'product_list' %}?category={{ top.slug }}&section=tops"
+                        style="color: inherit; text-decoration: none"
+                        >{{ top.name }}</a
+                      >
+                    </h4>
+                    <ul>
+                      {% for sub in top.subcategories.all %}
+                      <li>
+                        <a
+                          href="{% url 'product_list' %}?subcategory={{ sub.slug }}&section=tops"
+                          >{{ sub.name }}</a
+                        >
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  {% empty %}
+                  <div class="mega-col">
+                    <h4 class="mega-heading">Categories</h4>
+                    <ul>
+                      <li><a href="#">T-Shirts</a></li>
+                      <li><a href="#">Shirts</a></li>
+                    </ul>
+                  </div>
+                  {% endfor %} {% comment %}
+                  <div class="mega-col">
+                    <h4 class="mega-heading">Sports wear</h4>
+                    <ul>
+                      {% for sub in sport_wear_tops %}
+                      <li>
+                        <a
+                          href="{% url 'product_list' %}?subcategory={{ sub.slug }}&section=tops"
+                          >{{ sub.name }}</a
+                        >
+                      </li>
+                      {% empty %}
+                      <li><a href="#">Dry fit T-shirt</a></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  {% endcomment %}
+                  <div class="mega-col mega-featured">
+                    <div class="mega-banner mega-banner--tops">
+                      <div
+                        class="mega-banner-img"
+                        style="
+                          background-image: url('{% static 'images/tops.jpg' %}');
+                        "
+                      ></div>
+                      <span>New Collection</span>
+                      <p>Premium tops for the modern man</p>
+                      <a
+                        href="{% url 'product_list' %}?section=tops"
+                        class="mega-cta"
+                        >Explore Tops →</a
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+
+            <li class="nav-item has-mega">
+              <a
+                href="{% url 'product_list' %}?section=bottoms"
+                class="nav-link"
+                >Bottoms</a
+              >
+              <div class="mega-menu">
+                <div class="mega-inner">
+                  {% for bottom in bottoms|slice:":3" %}
+                  <div class="mega-col">
+                    <h4 class="mega-heading">
+                      <a
+                        href="{% url 'product_list' %}?category={{ bottom.slug }}&section=bottoms"
+                        style="color: inherit; text-decoration: none"
+                        >{{ bottom.name }}</a
+                      >
+                    </h4>
+                    <ul>
+                      {% for sub in bottom.subcategories.all %}
+                      <li>
+                        <a
+                          href="{% url 'product_list' %}?subcategory={{ sub.slug }}&section=bottoms"
+                          >{{ sub.name }}</a
+                        >
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  {% empty %}
+                  <div class="mega-col">
+                    <h4 class="mega-heading">Categories</h4>
+                    <ul>
+                      <li><a href="#">Jeans</a></li>
+                      <li><a href="#">Trousers</a></li>
+                    </ul>
+                  </div>
+                  {% endfor %}
+                  <div class="mega-col">
+                    <h4 class="mega-heading">Sports wear</h4>
+                    <ul>
+                      {% for sub in sport_wear_bottoms %}
+                      <li>
+                        <a
+                          href="{% url 'product_list' %}?subcategory={{ sub.slug }}&section=bottoms"
+                          >{{ sub.name }}</a
+                        >
+                      </li>
+                      {% empty %}
+                      <li><a href="#">Shorts</a></li>
+                      <li><a href="#">Tracks</a></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  <div class="mega-col mega-featured">
+                    <div class="mega-banner mega-banner--bottoms">
+                      <div
+                        class="mega-banner-img"
+                        style="
+                          background-image: url('{% static 'images/bottom.jpg' %}');
+                        "
+                      ></div>
+                      <span>The Perfect Fit</span>
+                      <p>Tailored comfort for every step</p>
+                      <a
+                        href="{% url 'product_list' %}?section=bottoms"
+                        class="mega-cta"
+                        >Explore Bottoms →</a
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url 'product_list' %}" class="nav-link">Fashion</a>
+            </li>
+
       <li class="drawer-divider"></li>
-      <li><a href="#">My Wishlist</a></li>
-      <li><a href="#">My Orders</a></li>
-      <li><a href="#">My Account</a></li>
+      {% comment %} <li><a href="#">My Account</a></li> {% endcomment %}
       {% if not user.is_authenticated %}
       <li class="drawer-auth">
         <a href="#" class="btn btn--full">Sign In / Register</a>
@@ -426,6 +610,7 @@
     </div>
   </nav>
 
+  
   <!-- ========== MAIN CONTENT ========== -->
   <main id="main-content">
     {% block content %}{% endblock %}
@@ -527,7 +712,7 @@
               <h4 style="font-weight: 600; font-size: 14px; color: var(--text-main); margin: 0 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 <a href="{% url 'product_detail' item.product_variant.product.slug %}" style="color: inherit; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='inherit'">{{ item.product_variant.product.name }}</a>
               </h4>
-              <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 8px 0;">Size: {{ item.product_variant.size }} | Color: {{ item.product_variant.color }}</p>
+              <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 8px 0;">Size: {{ item.size }} | Color: {{ item.product_variant.color }}</p>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; gap: 10px;">
                 <!-- Modern compact quantity selector -->
                 <div class="cart-qty-selector" style="display: flex; align-items: center; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; background: var(--bg-main);">
@@ -557,7 +742,7 @@
         <span>Total</span>
         <span id="cartTotal">₹{% if user.is_authenticated %}{{ cart_subtotal }}{% else %}0{% endif %}</span>
       </div>
-      <a href="#" class="btn btn--full">Checkout</a>
+      <a href="{% url 'checkout' %}" class="btn btn--full">Checkout</a>
     </div>
   </aside>
 

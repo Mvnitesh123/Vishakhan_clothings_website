@@ -29,6 +29,12 @@ admin.site.register(SubCategory)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ProductVariant)
 
+class ProductVariantImageAdmin(admin.ModelAdmin):
+    list_display = ['product', 'color', 'image']
+    search_fields = ['product__name', 'color']
+
+admin.site.register(ProductVariantImage, ProductVariantImageAdmin)
+
 admin.site.register(Address)
 admin.site.register(Cart)
 admin.site.register(CartItem)

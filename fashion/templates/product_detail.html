@@ -18,10 +18,10 @@
                   <img src="{{ product.image.url }}" alt="{{ product.name }} thumbnail" style="width: 100%; height: 100%; object-fit: cover;" />
                 </div>
 
-                {% for variant in product.variants.all %}
-                  {% if variant.image %}
+                {% for var_image in product.variant_images.all %}
+                  {% if var_image.image %}
                     <div class="thumbnail" data-index="{{ forloop.counter }}" style="width: 80px; height: 100px; flex-shrink: 0; border-radius: 4px; overflow: hidden; background: #f5f5f5; cursor: pointer; border: 2px solid transparent; transition: border-color 0.3s;">
-                      <img src="{{ variant.image.url }}" alt="{{ product.name }} variant thumbnail" style="width: 100%; height: 100%; object-fit: cover;" />
+                      <img src="{{ var_image.image.url }}" alt="{{ product.name }} variant thumbnail" style="width: 100%; height: 100%; object-fit: cover;" />
                     </div>
                   {% endif %}
                 {% endfor %}
@@ -134,7 +134,7 @@
               {% for variant in product.variants.all %}
               <div class="variant-card selectable-variant {% if variant.stock_status == 'OUT_OF_STOCK' %}disabled{% endif %}" 
                    data-variant-id="{{ variant.id }}" 
-                   data-size="{{ variant.size }}"
+                   data-sizes="{{ variant.size }}"
                    data-price="{{ variant.final_price }}"
                    data-original-price="{{ variant.price|default:product.price }}"
                    data-has-discount="{% if variant.allow_discount and product.discount_price %}true{% else %}false{% endif %}"
@@ -177,7 +177,7 @@
 
         <div class="actions" style="display: flex; gap: 1rem; margin-bottom: 3rem;">
           <button class="btn btn--full detail-add-to-bag" data-product-id="{{ product.id }}" style="flex: 1; padding: 18px;" {% if not product.variants.exists or product.stock_status == 'OUT_OF_STOCK' %}disabled{% endif %}>
-            {% if not product.variants.exists or product.stock_status == 'OUT_OF_STOCK' %}Out of Stock{% else %}Select Size & Color then add to bag{% endif %}
+            {% if not product.variants.exists or product.stock_status == 'OUT_OF_STOCK' %}Out of Stock{% else %}Select Size & Color then {% endif %}
           </button>
           <button class="btn btn--outline detail-wishlist-btn {% if product.id in wishlist_product_ids %}active{% endif %}" data-product-id="{{ product.id }}" style="width: 60px; padding: 0;" title="Add to Wishlist">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="{% if product.id in wishlist_product_ids %}var(--error){% else %}none{% endif %}" stroke="{% if product.id in wishlist_product_ids %}var(--error){% else %}currentColor{% endif %}" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -291,6 +291,123 @@
   }
   .thumbnail:hover {
     border-color: var(--accent-light) !important;
+  }
+
+  /* ===== Product Detail — Mobile Responsive ===== */
+  @media (max-width: 1024px) {
+    .product-detail-layout {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 2.5rem !important;
+    }
+    .slide-headline { font-size: 2.5rem; }
+  }
+
+  @media (max-width: 768px) {
+    .product-detail-layout {
+      grid-template-columns: 1fr !important;
+      gap: 0 !important;
+    }
+    /* Gallery: switch to horizontal thumbnails on mobile */
+    .product-gallery {
+      position: static !important;
+    }
+    .thumbnail-grid {
+      flex-direction: row !important;
+      height: auto !important;
+      min-height: unset !important;
+      width: 100% !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      padding-bottom: 8px;
+      gap: 8px !important;
+    }
+    .thumbnail {
+      width: 60px !important;
+      height: 75px !important;
+      flex-shrink: 0 !important;
+    }
+    .main-image-container {
+      height: 55vw !important;
+      min-height: 260px !important;
+      max-height: 420px !important;
+    }
+    /* Image layout: stack main image then thumbnails below */
+    .product-gallery > div > div {
+      flex-direction: column-reverse !important;
+    }
+    /* Product info on mobile */
+    .product-details h1 {
+      font-size: 1.8rem !important;
+    }
+    .price-block {
+      font-size: 1.4rem !important;
+    }
+    .description {
+      font-size: 0.95rem !important;
+    }
+    /* Actions: full-width */
+    .actions {
+      flex-direction: column !important;
+      gap: 10px !important;
+    }
+    .actions .btn--full {
+      padding: 15px !important;
+    }
+    .actions .btn--outline {
+      width: 100% !important;
+    }
+    /* Reviews */
+    .product-reviews-section > div:first-child {
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 12px;
+    }
+    #writeReviewBtn {
+      width: 100%;
+      text-align: center;
+    }
+    /* Margin top for section */
+    section.section-pad {
+      margin-top: 64px !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .product-detail-layout {
+      gap: 0 !important;
+    }
+    .product-details h1 {
+      font-size: 1.5rem !important;
+    }
+    .price-block {
+      font-size: 1.2rem !important;
+      margin-bottom: 1rem !important;
+    }
+    .description {
+      font-size: 0.9rem !important;
+      margin-bottom: 1.5rem !important;
+    }
+    .product-variants {
+      margin-bottom: 1.5rem !important;
+    }
+    .actions {
+      margin-bottom: 1.5rem !important;
+    }
+    .main-image-container {
+      height: 70vw !important;
+      min-height: 240px !important;
+    }
+    .review-item {
+      padding: 14px !important;
+    }
+    .review-item > div:first-child {
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 8px;
+    }
+    section.section-pad {
+      margin-top: 58px !important;
+    }
   }
 </style>
 
@@ -452,10 +569,12 @@
           c.style.borderColor = 'var(--border)';
           c.style.background = 'var(--bg-offset)';
           c.style.color = 'var(--text-main)';
+          c.classList.remove('active');
         });
         this.style.borderColor = 'var(--accent)';
         this.style.background = 'var(--accent)';
         this.style.color = 'white';
+        this.classList.add('active');
 
         // Show Color Selector
         colorSelectorContainer.style.display = 'block';
@@ -463,7 +582,8 @@
         // Filter Variant Cards
         let firstVisible = null;
         variantCards.forEach(card => {
-          if (card.getAttribute('data-size') === selectedSize) {
+          const sizes = card.getAttribute('data-sizes').split(',');
+          if (sizes.includes(selectedSize)) {
             card.style.display = 'flex';
             if (!firstVisible) firstVisible = card;
           } else {

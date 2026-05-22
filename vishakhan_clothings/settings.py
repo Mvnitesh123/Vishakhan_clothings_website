@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     
     'fashion',
+    'dashboard',
     'cloudinary',
     'cloudinary_storage',
 

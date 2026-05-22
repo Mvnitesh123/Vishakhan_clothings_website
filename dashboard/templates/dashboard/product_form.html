@@ -1,0 +1,619 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} — Vishakhan Clothings{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<!-- BACK ACTION -->
+<div style="margin-bottom: 24px;">
+  <a href="{% url 'dashboard:products' %}" class="btn-dash btn-outline btn-sm">
+    ← Back to Catalog
+  </a>
+</div>
+
+<!-- GRID SYSTEM: FORM VS VARIANTS -->
+<div class="dashboard-row" style="grid-template-columns: 1.1fr 1.3fr; gap: 30px;">
+  
+  <!-- CORE PRODUCT FORM -->
+  <div class="card-dash" style="margin-bottom: 0;">
+    <div class="card-title">Core Specifications</div>
+    
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      
+      <!-- Name -->
+      <div class="form-group">
+        <label class="form-label">Product Name</label>
+        {{ form.name }}
+        {{ form.name.errors }}
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <!-- Category -->
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          {{ form.category }}
+          {{ form.category.errors }}
+        </div>
+        <!-- Subcategory -->
+        <div class="form-group">
+          <label class="form-label">Subcategory</label>
+          {{ form.subcategory }}
+          {{ form.subcategory.errors }}
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <!-- Product Type -->
+        <div class="form-group">
+          <label class="form-label">Product Type</label>
+          {{ form.product_type }}
+          {{ form.product_type.errors }}
+        </div>
+        <!-- SKU -->
+        <div class="form-group">
+          <label class="form-label">SKU Code</label>
+          {{ form.sku }}
+          {{ form.sku.errors }}
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <!-- Base Price -->
+        <div class="form-group">
+          <label class="form-label">Original Price (₹)</label>
+          {{ form.price }}
+          {{ form.price.errors }}
+        </div>
+        <!-- Discount Price -->
+        <div class="form-group">
+          <label class="form-label">Discount Price (₹)</label>
+          {{ form.discount_price }}
+          {{ form.discount_price.errors }}
+        </div>
+      </div>
+
+      <!-- Short Description -->
+      <div class="form-group">
+        <label class="form-label">Short Summary</label>
+        {{ form.short_description }}
+        {{ form.short_description.errors }}
+      </div>
+
+      <!-- Full Description -->
+      <div class="form-group">
+        <label class="form-label">Detailed Description</label>
+        {{ form.description }}
+        {{ form.description.errors }}
+      </div>
+
+      <!-- Image Upload -->
+      <div class="form-group">
+        <label class="form-label">Cover Image</label>
+        {{ form.image }}
+        {{ form.image.errors }}
+        {% if object.image %}
+          <div style="margin-top: 10px;">
+            <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Current Cover Image:</span>
+            <img src="{{ object.image.url }}" style="height: 100px; border-radius: 6px; border: 1px solid var(--border-dash);" />
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Switches -->
+      <div style="display: flex; gap: 20px; margin-bottom: 24px; flex-wrap: wrap;">
+        <div class="form-checkbox-container">
+          {{ form.is_active }}
+          <label class="form-label" style="margin-bottom: 0;">Active in Store</label>
+        </div>
+        <div class="form-checkbox-container">
+          {{ form.is_featured }}
+          <label class="form-label" style="margin-bottom: 0;">Featured</label>
+        </div>
+        <div class="form-checkbox-container">
+          {{ form.is_trending }}
+          <label class="form-label" style="margin-bottom: 0;">Trending</label>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-dash btn-accent" style="width: 100%; justify-content: center;">
+        ✓ Save Product
+      </button>
+    </form>
+  </div>
+
+  <!-- RIGHT COLUMN: PRODUCT VARIANTS & IMAGES MANAGEMENT -->
+  <div style="display: flex; flex-direction: column; gap: 30px;">
+    
+    <!-- VARIANTS CONFIGURATION CARD -->
+    <div class="card-dash" style="margin-bottom: 0; display: flex; flex-direction: column;">
+      <div class="card-title">
+        <span>Variants Configuration</span>
+        {% if object %}
+          <button type="button" class="btn-dash btn-accent btn-sm" onclick="openModal('addVariantModal')">
+            + Add Variant
+          </button>
+        {% else %}
+          <button type="button" class="btn-dash btn-outline btn-sm" style="opacity: 0.6; cursor: not-allowed;" disabled>
+            + Add Variant (Requires Save)
+          </button>
+        {% endif %}
+      </div>
+
+      <!-- If we are in adding session, show illustrative info banner -->
+      {% if not object %}
+        <div style="background: rgba(59, 130, 246, 0.06); border: 1px dashed rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 15px; margin-bottom: 20px; display: flex; gap: 12px; align-items: flex-start;">
+          <span style="font-size: 1.2rem; filter: grayscale(0.2);">💡</span>
+          <div style="font-size: 0.85rem; line-height: 1.45; color: var(--text-muted);">
+            <strong style="color: var(--accent); display: block; margin-bottom: 3px; font-size: 0.9rem;">Adding Session Mode</strong>
+            You are creating a new product. Size/color variants can be fully customized with dedicated stock and pricing once you click <strong>✓ Save Product</strong>. Below is an illustrative preview of the variant table layout.
+          </div>
+        </div>
+      {% endif %}
+
+      {% if object %}
+      <!-- Variant Real-time Filters -->
+      <div class="variant-filters">
+        <!-- Size Filter -->
+        <div class="variant-filter-col">
+          <label class="variant-filter-label">Size</label>
+          <select id="filterSize" class="variant-filter-select">
+            <option value="">All Sizes</option>
+          </select>
+        </div>
+        <!-- Color Filter -->
+        <div class="variant-filter-col">
+          <label class="variant-filter-label">Color</label>
+          <select id="filterColor" class="variant-filter-select">
+            <option value="">All Colors</option>
+          </select>
+        </div>
+        <!-- Stock Filter -->
+        <div class="variant-filter-col">
+          <label class="variant-filter-label">Stock</label>
+          <select id="filterStock" class="variant-filter-select">
+            <option value="">All Statuses</option>
+            <option value="IN_STOCK">In Stock</option>
+            <option value="LIMITED">Low Stock</option>
+            <option value="OUT_OF_STOCK">Out of Stock</option>
+          </select>
+        </div>
+        <!-- Status Filter -->
+        <div class="variant-filter-col">
+          <label class="variant-filter-label">Active Status</label>
+          <select id="filterActive" class="variant-filter-select">
+            <option value="">All Statuses</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+        <!-- Reset Button -->
+        <div style="display: flex; align-items: flex-end;">
+          <button type="button" id="btnResetFilters" class="btn-dash btn-outline" style="padding: 9px 16px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; border-radius: 4px; display: flex; align-items: center; gap: 6px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            Reset
+          </button>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Variant Table -->
+      <div class="table-responsive" style="flex: 1;">
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Size</th>
+              <th>Color</th>
+              <th>Stock</th>
+              <th>Variant Price</th>
+              <th>Discount</th>
+              <th>Status</th>
+              <th style="text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if object %}
+              {% for var in variants %}
+              <tr class="variant-row" data-size="{{ var.size }}" data-color="{{ var.color|lower }}" data-stock="{{ var.stock_status }}" data-active="{% if var.is_active %}true{% else %}false{% endif %}">
+                <td>
+                  {% if var.image %}
+                    <img src="{{ var.image.url }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border-dash);" />
+                  {% else %}
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">No Image</span>
+                  {% endif %}
+                </td>
+                <td style="font-weight: bold; color: var(--accent);">{{ var.size }}</td>
+                <td>{{ var.color }}</td>
+                <td style="font-weight: 600;">{{ var.stock }}</td>
+                <td>
+                  {% if var.price %}₹{{ var.price }}{% else %}<span style="color: var(--text-muted); font-size: 0.8rem;">(Inherited)</span>{% endif %}
+                </td>
+                <td>
+                  {% if var.allow_discount %}
+                    <span style="color: var(--success); font-weight: 600;">Yes</span>
+                  {% else %}
+                    <span style="color: var(--text-muted);">No</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if var.is_active %}
+                    <span class="badge-pill badge-success" style="font-size: 0.65rem;">Active</span>
+                  {% else %}
+                    <span class="badge-pill badge-danger" style="font-size: 0.65rem;">Inactive</span>
+                  {% endif %}
+                </td>
+                <td style="text-align: right;">
+                  <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <button type="button" class="btn-dash btn-outline btn-sm" onclick="populateEditVariantModal('{{ var.id }}', '{{ var.size }}', '{{ var.color }}', '{{ var.stock }}', '{{ var.price|default:'' }}', '{{ var.allow_discount }}', '{{ var.is_active }}', '{% if var.image %}{{ var.image.url }}{% endif %}')">
+                      Edit
+                    </button>
+                    <form action="{% url 'dashboard:product_variant_delete' var.id %}" method="POST" onsubmit="return confirm('Are you sure you want to delete this size/color variant?');" style="display: inline;">
+                      {% csrf_token %}
+                      <button type="submit" class="btn-dash btn-outline btn-sm" style="color: var(--danger); border-color: rgba(239,68,68,0.2);">✕</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px 0;">
+                  No size/color variants created. Store checkout requires at least 1 active variant.
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <!-- ILLUSTRATIVE PREVIEW ROWS FOR ADDING SESSION -->
+              <tr style="opacity: 0.65;">
+                <td>
+                  <div style="width: 40px; height: 40px; border-radius: 4px; background: linear-gradient(135deg, #1e3a8a, #3b82f6); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-dash);">
+                    <span style="font-size: 0.65rem; color: #fff; font-weight: bold;">Navy</span>
+                  </div>
+                </td>
+                <td style="font-weight: bold; color: var(--accent);">M</td>
+                <td>Navy Blue</td>
+                <td>15</td>
+                <td><span style="color: var(--text-muted); font-size: 0.8rem;">(Inherited)</span></td>
+                <td><span style="color: var(--success); font-weight: 600;">Yes</span></td>
+                <td><span class="badge-pill badge-success" style="font-size: 0.65rem; opacity: 0.8;">Active</span></td>
+                <td style="text-align: right;">
+                  <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <span class="btn-dash btn-outline btn-sm" style="opacity: 0.5; cursor: not-allowed;">Edit</span>
+                    <span class="btn-dash btn-outline btn-sm" style="color: var(--danger); opacity: 0.5; cursor: not-allowed;">✕</span>
+                  </div>
+                </td>
+              </tr>
+              <tr style="opacity: 0.65;">
+                <td>
+                  <div style="width: 40px; height: 40px; border-radius: 4px; background: linear-gradient(135deg, #14532d, #10b981); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-dash);">
+                    <span style="font-size: 0.65rem; color: #fff; font-weight: bold;">Olive</span>
+                  </div>
+                </td>
+                <td style="font-weight: bold; color: var(--accent);">L</td>
+                <td>Olive Green</td>
+                <td>20</td>
+                <td><span style="color: var(--text-muted); font-size: 0.8rem;">(Inherited)</span></td>
+                <td><span style="color: var(--success); font-weight: 600;">Yes</span></td>
+                <td><span class="badge-pill badge-success" style="font-size: 0.65rem; opacity: 0.8;">Active</span></td>
+                <td style="text-align: right;">
+                  <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <span class="btn-dash btn-outline btn-sm" style="opacity: 0.5; cursor: not-allowed;">Edit</span>
+                    <span class="btn-dash btn-outline btn-sm" style="color: var(--danger); opacity: 0.5; cursor: not-allowed;">✕</span>
+                  </div>
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- COLOR IMAGES GALLERY CARD -->
+    <div class="card-dash" style="margin-bottom: 0; display: flex; flex-direction: column;">
+      <div class="card-title">
+        <span>Color Images Gallery</span>
+      </div>
+      
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin: -5px 0 15px 0; line-height: 1.4;">
+        Upload high-quality images grouped by color. These images automatically map to the product's color options on the storefront detail page.
+      </p>
+
+      {% if object %}
+        <!-- Active Session: Render real color-specific images -->
+        {% if variant_images %}
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px;">
+            {% for img in variant_images %}
+              <div style="background: var(--bg-card); border: 1px solid var(--border-dash); border-radius: 8px; padding: 8px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between;">
+                {% if img.image %}
+                  <img src="{{ img.image.url }}" style="width: 100%; height: 110px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-dash); margin-bottom: 8px;" />
+                {% else %}
+                  <div style="width: 100%; height: 110px; background: var(--bg-input); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 0.75rem; color: var(--text-muted);">No File</div>
+                {% endif %}
+                <span class="badge-pill badge-info" style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase;">{{ img.color }}</span>
+              </div>
+            {% endfor %}
+          </div>
+          <div style="margin-top: 15px; font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--border-dash); padding-top: 10px; display: flex; align-items: center; gap: 6px;">
+            <span>💡</span>
+            <span>To upload or change an image for any color, edit a variant of that color or add a new variant with an attached image.</span>
+          </div>
+        {% else %}
+          <!-- Empty State -->
+          <div style="text-align: center; color: var(--text-muted); padding: 40px 15px; border: 1px dashed var(--border-dash); border-radius: 8px;">
+            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom: 10px; opacity: 0.7; color: var(--accent);">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+            </svg>
+            <p style="font-size: 0.85rem; margin: 0 0 5px 0; font-weight: 600;">No variant images uploaded yet</p>
+            <p style="font-size: 0.75rem; margin: 0; color: var(--text-muted);">When you create color variants and upload files, they will group by color and display here.</p>
+          </div>
+        {% endif %}
+      {% else %}
+        <!-- Adding Session: Illustrative Card Placeholders -->
+        <div style="background: rgba(16, 185, 129, 0.05); border: 1px dashed rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 15px; margin-bottom: 20px; display: flex; gap: 12px; align-items: flex-start;">
+          <span style="font-size: 1.2rem; filter: grayscale(0.2);">🎨</span>
+          <div style="font-size: 0.85rem; line-height: 1.45; color: var(--text-muted);">
+            <strong style="color: var(--success); display: block; margin-bottom: 3px; font-size: 0.9rem;">Color Images Gallery Preview</strong>
+            Images uploaded during variant creation will automatically group by color and display as storefront selections.
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; opacity: 0.65;">
+          <!-- Placeholder 1 -->
+          <div style="background: var(--bg-card); border: 1px dashed var(--border-dash); border-radius: 8px; padding: 8px; text-align: center; display: flex; flex-direction: column; align-items: center;">
+            <div style="width: 100%; height: 110px; background: linear-gradient(135deg, rgba(30, 58, 138, 0.3), rgba(59, 130, 246, 0.3)); border-radius: 6px; border: 1px dashed var(--border-dash); display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Navy Preview</span>
+            </div>
+            <span class="badge-pill" style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; background: rgba(59, 130, 246, 0.1); color: var(--accent);">Navy Blue</span>
+          </div>
+          <!-- Placeholder 2 -->
+          <div style="background: var(--bg-card); border: 1px dashed var(--border-dash); border-radius: 8px; padding: 8px; text-align: center; display: flex; flex-direction: column; align-items: center;">
+            <div style="width: 100%; height: 110px; background: linear-gradient(135deg, rgba(20, 83, 45, 0.3), rgba(16, 185, 129, 0.3)); border-radius: 6px; border: 1px dashed var(--border-dash); display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Olive Preview</span>
+            </div>
+            <span class="badge-pill" style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; background: rgba(16, 185, 129, 0.1); color: var(--success);">Olive Green</span>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ========== MODALS FOR VARIANT MANAGEMENT ========== -->
+{% if object %}
+  <!-- ADD VARIANT MODAL -->
+  <div id="addVariantModal" class="modal-dash">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Add Product Variant</h3>
+        <button type="button" class="modal-close" onclick="closeModal('addVariantModal')">&times;</button>
+      </div>
+      <form action="{% url 'dashboard:product_variant_create' object.id %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label">Size</label>
+          {{ variant_form.size }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color</label>
+          {{ variant_form.color }}
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div class="form-group">
+            <label class="form-label">Stock Quantity</label>
+            {{ variant_form.stock }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Override Price (₹)</label>
+            {{ variant_form.price }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Variant Image (Optional)</label>
+          {{ variant_form.image }}
+        </div>
+        <div style="display: flex; gap: 20px; margin-bottom: 24px;">
+          <div class="form-checkbox-container">
+            {{ variant_form.allow_discount }}
+            <label class="form-label" style="margin-bottom: 0;">Allow Discount</label>
+          </div>
+          <div class="form-checkbox-container">
+            {{ variant_form.is_active }}
+            <label class="form-label" style="margin-bottom: 0;">Active</label>
+          </div>
+        </div>
+        <button type="submit" class="btn-dash btn-accent" style="width: 100%; justify-content: center;">
+          ✓ Save Variant
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT VARIANT MODAL -->
+  <div id="editVariantModal" class="modal-dash">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Edit Product Variant</h3>
+        <button type="button" class="modal-close" onclick="closeModal('editVariantModal')">&times;</button>
+      </div>
+      <form id="editVariantForm" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label">Size</label>
+          {{ variant_form.size }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color</label>
+          {{ variant_form.color }}
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div class="form-group">
+            <label class="form-label">Stock Quantity</label>
+            {{ variant_form.stock }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Override Price (₹)</label>
+            {{ variant_form.price }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Variant Image (Optional)</label>
+          {{ variant_form.image }}
+        </div>
+        <div class="form-group" id="editVariantImagePreviewContainer" style="display: none; margin-top: 10px;">
+          <label class="form-label">Current Image</label>
+          <img id="editVariantImagePreview" src="" style="max-height: 80px; border-radius: 4px; border: 1px solid var(--border-dash); display: block;" />
+        </div>
+        <div style="display: flex; gap: 20px; margin-bottom: 24px;">
+          <div class="form-checkbox-container">
+            {{ variant_form.allow_discount }}
+            <label class="form-label" style="margin-bottom: 0;">Allow Discount</label>
+          </div>
+          <div class="form-checkbox-container">
+            {{ variant_form.is_active }}
+            <label class="form-label" style="margin-bottom: 0;">Active</label>
+          </div>
+        </div>
+        <button type="submit" class="btn-dash btn-accent" style="width: 100%; justify-content: center;">
+          ✓ Update Variant
+        </button>
+      </form>
+    </div>
+  </div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function populateEditVariantModal(id, sizeVal, color, stock, price, allowDiscount, isActive, imageUrl) {
+      const modal = document.getElementById('editVariantModal');
+      const form = document.getElementById('editVariantForm');
+      
+      // Set Form Action Dynamically
+      form.action = `/dashboard/variants/${id}/update/`;
+      
+      // Populate fields
+      const sizeSelect = form.querySelector('[name="size"]');
+      if (sizeSelect) {
+          sizeSelect.value = sizeVal;
+      }
+      
+      form.querySelector('[name="color"]').value = color;
+      form.querySelector('[name="stock"]').value = stock;
+      form.querySelector('[name="price"]').value = price;
+      
+      form.querySelector('[name="allow_discount"]').checked = (allowDiscount === 'True' || allowDiscount === 'true');
+      form.querySelector('[name="is_active"]').checked = (isActive === 'True' || isActive === 'true');
+      
+      // Image Preview
+      const previewContainer = document.getElementById('editVariantImagePreviewContainer');
+      const previewImg = document.getElementById('editVariantImagePreview');
+      if (previewContainer && previewImg) {
+          if (imageUrl) {
+              previewImg.src = imageUrl;
+              previewContainer.style.display = 'block';
+          } else {
+              previewImg.src = '';
+              previewContainer.style.display = 'none';
+          }
+      }
+      
+      // Open modal
+      openModal('editVariantModal');
+  }
+
+  // Real-time client-side variant table filtering
+  document.addEventListener('DOMContentLoaded', () => {
+      const filterSize = document.getElementById('filterSize');
+      const filterColor = document.getElementById('filterColor');
+      const filterStock = document.getElementById('filterStock');
+      const filterActive = document.getElementById('filterActive');
+      const btnReset = document.getElementById('btnResetFilters');
+      const rows = document.querySelectorAll('.variant-row');
+
+      if (!filterSize || !rows.length) return;
+
+      // Extract unique sizes and colors from rows
+      const uniqueSizes = new Set();
+      const uniqueColors = new Set();
+
+      rows.forEach(row => {
+          const sz = row.getAttribute('data-size');
+          const col = row.getAttribute('data-color');
+          if (sz) uniqueSizes.add(sz);
+          if (col) {
+              // Capitalize color nicely for display label
+              const displayColor = col.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+              uniqueColors.add(JSON.stringify({ value: col, label: displayColor }));
+          }
+      });
+
+      // Populate Size select options dynamically
+      const sortedSizes = Array.from(uniqueSizes).sort();
+      sortedSizes.forEach(size => {
+          const opt = document.createElement('option');
+          opt.value = size;
+          opt.textContent = size;
+          filterSize.appendChild(opt);
+      });
+
+      // Populate Color select options dynamically
+      const colorsArray = Array.from(uniqueColors).map(s => JSON.parse(s));
+      colorsArray.sort((a, b) => a.label.localeCompare(b.label));
+      colorsArray.forEach(color => {
+          const opt = document.createElement('option');
+          opt.value = color.value;
+          opt.textContent = color.label;
+          filterColor.appendChild(opt);
+      });
+
+      // Interactive Filtering Logic
+      function applyFilters() {
+          const sVal = filterSize.value;
+          const cVal = filterColor.value;
+          const stVal = filterStock.value;
+          const aVal = filterActive.value;
+
+          rows.forEach(row => {
+              const rowSize = row.getAttribute('data-size');
+              const rowColor = row.getAttribute('data-color');
+              const rowStock = row.getAttribute('data-stock');
+              const rowActive = row.getAttribute('data-active');
+
+              const matchSize = !sVal || rowSize === sVal;
+              const matchColor = !cVal || rowColor === cVal;
+              const matchStock = !stVal || rowStock === stVal;
+              const matchActive = !aVal || rowActive === aVal;
+
+              if (matchSize && matchColor && matchStock && matchActive) {
+                  row.style.display = '';
+              } else {
+                  row.style.display = 'none';
+              }
+          });
+      }
+
+      // Add listeners to selects
+      filterSize.addEventListener('change', applyFilters);
+      filterColor.addEventListener('change', applyFilters);
+      filterStock.addEventListener('change', applyFilters);
+      filterActive.addEventListener('change', applyFilters);
+
+      // Handle Reset button click
+      if (btnReset) {
+          btnReset.addEventListener('click', () => {
+              filterSize.value = '';
+              filterColor.value = '';
+              filterStock.value = '';
+              filterActive.value = '';
+              rows.forEach(row => row.style.display = '');
+          });
+      }
+  });
+</script>
+{% endblock %}

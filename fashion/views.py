@@ -10,9 +10,11 @@ from .models import (
     CartItem,
     SubCategory,
     ProductVariant,
+    ProductVariantImage,
     Review,
     Address,
     Order,
+    OrderItem,
     Payment,
     User,
 )
@@ -25,28 +27,26 @@ from asgiref.sync import sync_to_async
 def _get_global_context_data(user):
     tops = list(Category.objects.filter(is_active=True).filter(
         Q(name__icontains='shirt') | Q(name__icontains='top')
-    ).only('name', 'slug'))
+    ).prefetch_related(Prefetch('subcategories', queryset=SubCategory.objects.filter(is_active=True))))
 
     bottoms = list(Category.objects.filter(is_active=True).filter(
         Q(name__icontains='lower') | Q(name__icontains='bottom') | Q(name__icontains='pant') | Q(name__icontains='jeans')
-    ).only('name', 'slug'))
+    ).prefetch_related(Prefetch('subcategories', queryset=SubCategory.objects.filter(is_active=True))))
     
-    # Offers: Basic (<40% off) and Premium (>=40% off) (trending products only)
+    # Offers: Basic (<40% off) and Premium (>=40% off)
     basic_offers = list(Product.objects.filter(
         is_active=True, 
-        is_trending=True,
         discount_price__isnull=False,
         discount_price__gt=F('price') * 0.6,
         discount_price__lt=F('price')
-    ).only('name', 'slug', 'price', 'discount_price').order_by('-created_at')[:5])
+    ).only('name', 'slug', 'price', 'discount_price').order_by('-id')[:5])
 
     premium_offers = list(Product.objects.filter(
         is_active=True, 
-        is_trending=True,
         discount_price__isnull=False,
         discount_price__lte=F('price') * 0.6,
         discount_price__gt=0
-    ).only('name', 'slug', 'price', 'discount_price').order_by('-created_at')[:5])
+    ).only('name', 'slug', 'price', 'discount_price').order_by('-id')[:5])
 
     sport_wear_tops = list(SubCategory.objects.filter(name__icontains='Dry fit', is_active=True).only('name', 'slug'))
     sport_wear_bottoms = list(SubCategory.objects.filter(name__icontains='Shorts', is_active=True).only('name', 'slug'))
@@ -103,12 +103,13 @@ def get_global_context_async(user):
 def get_home_data():
     categories = list(Category.objects.filter(is_active=True).order_by('name')[:6])
     active_variants = Prefetch('variants', queryset=ProductVariant.objects.filter(is_active=True))
+    active_vimgs = Prefetch('variant_images', queryset=ProductVariantImage.objects.all())
     
     new_arrivals = list(
         Product.objects.filter(is_active=True, variants__is_active=True, variants__stock__gt=0)
         .distinct()
         .select_related('category')
-        .prefetch_related('reviews', active_variants)
+        .prefetch_related('reviews', active_variants, active_vimgs)
         .annotate(avg_rating=Avg('reviews__rating'))
         .order_by('-created_at')[:4]
     )
@@ -116,7 +117,7 @@ def get_home_data():
         Product.objects.filter(is_active=True, is_featured=True, variants__is_active=True, variants__stock__gt=0)
         .distinct()
         .select_related('category')
-        .prefetch_related('reviews', active_variants)
+        .prefetch_related('reviews', active_variants, active_vimgs)
         .annotate(avg_rating=Avg('reviews__rating'))
         .order_by('-created_at')[:4]
     )
@@ -124,7 +125,7 @@ def get_home_data():
         Product.objects.filter(is_active=True, is_trending=True, variants__is_active=True, variants__stock__gt=0)
         .distinct()
         .select_related('category')
-        .prefetch_related('reviews', active_variants)
+        .prefetch_related('reviews', active_variants, active_vimgs)
         .annotate(avg_rating=Avg('reviews__rating'))
         .order_by('-created_at')[:4]
     )
@@ -182,27 +183,6 @@ async def home(request):
 
 
 def product_detail(request, slug):
-    # Define custom sort order for sizes
-    size_order = Case(
-        When(size='M', then=1),
-        When(size='L', then=2),
-        When(size='XL', then=3),
-        When(size='2XL', then=4),
-        When(size='3XL', then=5),
-        When(size='4XL', then=6),
-        When(size='5XL', then=7),
-        When(size='28', then=8),
-        When(size='30', then=9),
-        When(size='32', then=10),
-        When(size='34', then=11),
-        When(size='36', then=12),
-        When(size='40', then=13),
-        When(size='42', then=14),
-        When(size='44', then=15),
-        When(size='CUSTOM', then=16),
-        default=17,
-        output_field=IntegerField(),
-    )
 
     product = (
         Product.objects
@@ -210,9 +190,7 @@ def product_detail(request, slug):
         .prefetch_related(
             'reviews', 
             'reviews__user',
-            Prefetch('variants', queryset=ProductVariant.objects.annotate(
-                sort_order=size_order
-            ).order_by('sort_order'))
+            Prefetch('variants', queryset=ProductVariant.objects.all())
         )
         .annotate(avg_rating=Avg('reviews__rating'))
         .first()
@@ -240,13 +218,12 @@ def product_detail(request, slug):
             pass
 
     # Get unique sizes for the tiered selector
-    unique_sizes = product.variants.values_list('size', flat=True).distinct()
+    unique_sizes = set(product.variants.values_list('size', flat=True))
     
     # Standard list for ordering
     all_possible_sizes = [
-        'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL', 
-        '28', '30', '32', '34', '36', '40', '42', '44', 
-        'CUSTOM'
+        'M', 'L', 'XL', '2XL', '3XL', '5XL', 
+        '28', '30', '32', '34', '36', '40', '42', '44'
     ]
     ordered_sizes = [s for s in all_possible_sizes if s in unique_sizes]
 
@@ -336,7 +313,8 @@ def product_list(request):
     """
     products = Product.objects.filter(is_active=True).select_related('category').prefetch_related(
         'reviews',
-        Prefetch('variants', queryset=ProductVariant.objects.filter(is_active=True))
+        Prefetch('variants', queryset=ProductVariant.objects.filter(is_active=True)),
+        Prefetch('variant_images', queryset=ProductVariantImage.objects.all())
     )
     
     # Sorting
@@ -463,7 +441,8 @@ def add_to_cart(request):
     product_id = request.POST.get('product_id')
     variant_id = request.POST.get('variant_id')
     quantity = int(request.POST.get('quantity', 1))
-    
+    size = request.POST.get('size', '').strip() or None
+
     # Resolve the variant
     variant = None
     if variant_id:
@@ -477,10 +456,12 @@ def add_to_cart(request):
     if not variant:
         return JsonResponse({'success': False, 'message': 'Please select a size and color first.'}, status=400)
         
+    size = size or variant.size
+        
     cart, created = Cart.objects.get_or_create(user=request.user)
     
     # Check current quantity in cart to enforce stock limits accurately
-    cart_item = CartItem.objects.filter(cart=cart, product_variant=variant).first()
+    cart_item = CartItem.objects.filter(cart=cart, product_variant=variant, size=size).first()
     current_qty = cart_item.quantity if cart_item else 0
     total_requested = current_qty + quantity
     
@@ -493,7 +474,7 @@ def add_to_cart(request):
         }, status=400)
         
     if not cart_item:
-        cart_item = CartItem.objects.create(cart=cart, product_variant=variant, quantity=quantity)
+        cart_item = CartItem.objects.create(cart=cart, product_variant=variant, quantity=quantity, size=size)
     else:
         cart_item.quantity = total_requested
         cart_item.save()
@@ -536,7 +517,7 @@ def get_cart(request):
                 'variant_id': item.product_variant.id,
                 'product_name': item.product_variant.product.name,
                 'product_slug': item.product_variant.product.slug,
-                'size': item.product_variant.size,
+                'size': item.size,
                 'color': item.product_variant.color,
                 'price': float(final_price),
                 'quantity': item.quantity,
@@ -876,4 +857,70 @@ def profile_view(request):
         'active_orders': active_orders,
         'order_history': order_history,
     })
-    return render(request, 'profile.html', context)
+    return render(request, 'profile.html', context)
+
+
+@login_required
+def checkout(request):
+    user = request.user
+    cart = Cart.objects.filter(user=user).first()
+    
+    if not cart or not cart.items.exists():
+        messages.error(request, "Your bag is empty.")
+        return redirect('product_list')
+        
+    items = cart.items.select_related('product_variant__product').all()
+    
+    # Check if any items are out of stock
+    if any(item.product_variant.stock <= 0 for item in items):
+        messages.error(request, "Some items in your bag are out of stock. Please remove them to proceed.")
+        return redirect('profile')
+        
+    address = Address.objects.filter(user=user, is_default=True).first()
+    if not address:
+        address = Address.objects.filter(user=user).first()
+        
+    if not address:
+        messages.error(request, "Please add a shipping address before checkout. Update it in your Profile.")
+        return redirect('profile')
+        
+    subtotal = sum(item.product_variant.final_price * item.quantity for item in items)
+    
+    try:
+        from django.db import transaction
+        with transaction.atomic():
+            order = Order.objects.create(
+                user=user,
+                address=address,
+                total_amount=subtotal,
+                shipping_charge=0,
+                tax=0,
+                order_status='PENDING',
+                payment_status='PENDING'
+            )
+            
+            for item in items:
+                variant = item.product_variant
+                # Deduct stock
+                if variant.stock >= item.quantity:
+                    variant.stock -= item.quantity
+                else:
+                    variant.stock = 0
+                variant.save()
+                
+                OrderItem.objects.create(
+                    order=order,
+                    product_variant=variant,
+                    size=item.size,
+                    quantity=item.quantity,
+                    price=variant.final_price,
+                    total_price=variant.final_price * item.quantity
+                )
+                
+            cart.items.all().delete()
+            messages.success(request, "Order placed successfully!")
+            
+    except Exception as e:
+        messages.error(request, f"An error occurred during checkout: {str(e)}")
+        
+    return redirect('profile')

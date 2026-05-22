@@ -1,0 +1,127 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}User Management — Vishakhan Clothings{% endblock %}
+{% block header_title %}User & Staff Management{% endblock %}
+
+{% block content %}
+
+<!-- ACTION HEADER -->
+<div class="action-row">
+  <!-- Role Filters -->
+  <div style="display: flex; gap: 10px;">
+    <a href="{% url 'dashboard:users' %}" class="btn-dash {% if role == '' %}btn-accent{% else %}btn-outline{% endif %} btn-sm">All Roles</a>
+    <a href="{% url 'dashboard:users' %}?role=customer" class="btn-dash {% if role == 'customer' %}btn-accent{% else %}btn-outline{% endif %} btn-sm">Customers</a>
+    <a href="{% url 'dashboard:users' %}?role=staff" class="btn-dash {% if role == 'staff' %}btn-accent{% else %}btn-outline{% endif %} btn-sm">Staff</a>
+  </div>
+
+  <div style="display: flex; gap: 15px; align-items: center;">
+    <!-- Search Form -->
+    <form method="GET" action="{% url 'dashboard:users' %}" class="header-search" style="display: flex;">
+      {% if role %}<input type="hidden" name="role" value="{{ role }}" />{% endif %}
+      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" name="q" placeholder="Search users..." value="{{ q }}" />
+    </form>
+    
+    <!-- Add Staff Button -->
+    <a href="{% url 'dashboard:staff_create' %}" class="btn-dash btn-accent">
+      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>
+      Add Staff
+    </a>
+  </div>
+</div>
+
+<!-- USER LOG TABLE -->
+<div class="card-dash" style="padding: 10px 0;">
+  <div class="table-responsive">
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th style="text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <div class="product-row-info">
+              <!-- Avatar placeholder -->
+              <div style="width: 32px; height: 32px; border-radius: 50%; background-color: {% if u.is_staff %}var(--accent){% else %}var(--info){% endif %}; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;">
+                {{ u.username|slice:":1"|upper }}
+              </div>
+              <div>
+                <a href="{% url 'dashboard:user_detail' u.id %}" style="color: inherit; text-decoration: none; font-weight: 600;">
+                  {{ u.username }}
+                </a>
+              </div>
+            </div>
+          </td>
+          <td>{{ u.email }}</td>
+          <td>
+            {% if u.is_superuser %}
+              <span class="badge-pill badge-danger">Superuser</span>
+            {% elif u.is_staff %}
+              <span class="badge-pill badge-warning">Staff</span>
+            {% else %}
+              <span class="badge-pill badge-info">Customer</span>
+            {% endif %}
+          </td>
+          <td>
+            <span id="user-status-badge-{{ u.id }}" class="badge-pill {% if u.is_active %}badge-success{% else %}badge-danger{% endif %}">
+              {% if u.is_active %}Active{% else %}Suspended{% endif %}
+            </span>
+          </td>
+          <td>{{ u.date_joined|date:"M d, Y" }}</td>
+          <td style="text-align: right;">
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+              <!-- Toggle Active Button -->
+              {% if u != request.user %}
+                <button type="button" class="btn-dash {% if u.is_active %}btn-outline{% else %}btn-accent{% endif %} btn-sm" onclick="toggleUserActive({{ u.id }}, this)">
+                  {% if u.is_active %}Deactivate{% else %}Activate{% endif %}
+                </button>
+              {% endif %}
+
+              <!-- Edit Button for Staff -->
+              {% if u.is_staff %}
+                <a href="{% url 'dashboard:staff_update' u.id %}" class="btn-dash btn-outline btn-sm">Edit</a>
+              {% endif %}
+
+              <!-- Delete Button -->
+              {% if u != request.user %}
+                <form action="{% url 'dashboard:user_delete' u.id %}" method="POST" onsubmit="return confirm('Are you absolutely sure you want to delete this user? All their cart and history will be cleared.');" style="display: inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-dash btn-outline btn-sm" style="color: var(--danger); border-color: rgba(239,68,68,0.2);">Delete</button>
+                </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px 0;">No accounts found matching queries.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PAGINATION -->
+{% if is_paginated %}
+<div style="display: flex; justify-content: center; gap: 10px; margin-top: 30px;">
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if role %}&role={{ role }}{% endif %}" class="btn-dash btn-outline btn-sm">Prev</a>
+  {% endif %}
+  <span style="align-self: center; font-size: 0.85rem; color: var(--text-muted);">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if role %}&role={{ role }}{% endif %}" class="btn-dash btn-outline btn-sm">Next</a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Seller Panel — Vishakhan Clothings{% endblock %}</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Core Dashboard CSS -->
+  <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}" />
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+  <!-- ========== SIDEBAR NAV ========== -->
+  <aside id="dash-sidebar">
+    <div class="sidebar-logo">
+      <a href="{% url 'dashboard:home' %}">Vishakhan Seller</a>
+    </div>
+    
+    <ul class="sidebar-menu">
+      <li class="sidebar-item {% if active_tab == 'dashboard' %}active{% endif %}">
+        <a href="{% url 'dashboard:home' %}" class="sidebar-link">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+          Dashboard
+        </a>
+      </li>
+      <li class="sidebar-item {% if active_tab == 'products' %}active{% endif %}">
+        <a href="{% url 'dashboard:products' %}" class="sidebar-link">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          Products
+        </a>
+      </li>
+      <li class="sidebar-item {% if active_tab == 'categories' %}active{% endif %}">
+        <a href="{% url 'dashboard:categories' %}" class="sidebar-link">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          Categories
+        </a>
+      </li>
+      <li class="sidebar-item {% if active_tab == 'orders' %}active{% endif %}">
+        <a href="{% url 'dashboard:orders' %}" class="sidebar-link">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          Orders & logs
+        </a>
+      </li>
+      <li class="sidebar-item {% if active_tab == 'users' %}active{% endif %}">
+        <a href="{% url 'dashboard:users' %}" class="sidebar-link">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Customers / Staff
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <a href="{% url 'home' %}" class="sidebar-link" target="_blank">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View Storefront
+      </a>
+    </div>
+  </aside>
+
+  <!-- Sidebar overlay for mobile (tap to close) -->
+  <div id="sidebarOverlay"></div>
+
+  <!-- ========== MAIN VIEWPORT ========== -->
+  <main id="dash-main">
+    
+    <!-- HEADER BAR -->
+    <header id="dash-header">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <button class="icon-btn menu-toggle" id="menuToggle" aria-label="Toggle menu">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <span style="font-size: 1.1rem; font-weight: 600; font-family: var(--font-serif); letter-spacing: 0.02em;">
+          {% block header_title %}Overview{% endblock %}
+        </span>
+      </div>
+
+      <div class="header-actions">
+        <!-- Theme Toggle -->
+        <button class="icon-btn" id="dashThemeToggle" aria-label="Toggle theme">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+
+        <!-- Profile display -->
+        <div class="profile-dropdown">
+          <span style="font-size: 0.85rem; font-weight: 600;">{{ request.user.username }}</span>
+          {% if request.user.profile_image %}
+            <img src="{{ request.user.profile_image.url }}" alt="avatar" class="profile-avatar" />
+          {% else %}
+            <div class="profile-avatar" style="background-color: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 0.9rem;">
+              {{ request.user.username|slice:":1"|upper }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT PORT -->
+    <div class="dash-content">
+      {% if messages %}
+        <div style="margin-bottom: 20px;">
+          {% for message in messages %}
+            <div style="padding: 12px 20px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; margin-bottom: 10px; background-color: {% if message.tags == 'error' %}var(--danger-bg){% else %}var(--success-bg){% endif %}; color: {% if message.tags == 'error' %}var(--danger){% else %}var(--success){% endif %}; border: 1px solid {% if message.tags == 'error' %}var(--danger){% else %}var(--success){% endif %};">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+
+  </main>
+
+  <!-- JS SCRIPTS -->
+  <script src="{% static 'dashboard/dashboard.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

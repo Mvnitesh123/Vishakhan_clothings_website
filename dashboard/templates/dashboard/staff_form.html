@@ -1,0 +1,83 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} — Vishakhan Clothings{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<!-- BACK ACTION -->
+<div style="margin-bottom: 24px;">
+  <a href="{% url 'dashboard:users' %}" class="btn-dash btn-outline btn-sm">
+    ← Back to List
+  </a>
+</div>
+
+<!-- FORM CARD -->
+<div style="max-width: 600px; margin: 0 auto;">
+  <div class="card-dash">
+    <div class="card-title">{{ title }}</div>
+    
+    <form method="POST">
+      {% csrf_token %}
+      
+      <!-- Email Address -->
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        {{ form.email }}
+        {{ form.email.errors }}
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <!-- First Name -->
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          {{ form.first_name }}
+          {{ form.first_name.errors }}
+        </div>
+        <!-- Last Name -->
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          {{ form.last_name }}
+          {{ form.last_name.errors }}
+        </div>
+      </div>
+
+      <!-- Phone Number -->
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        {{ form.phone }}
+        {{ form.phone.errors }}
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        {{ form.password }}
+        {{ form.password.errors }}
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+          {{ form.password.help_text }}
+        </p>
+      </div>
+
+      <!-- Privileges -->
+      <div style="display: flex; gap: 20px; margin-bottom: 24px; flex-wrap: wrap;">
+        <div class="form-checkbox-container">
+          {{ form.is_staff }}
+          <label class="form-label" style="margin-bottom: 0;">Staff Privileges (Dashboard Access)</label>
+        </div>
+        <div class="form-checkbox-container">
+          {{ form.is_active }}
+          <label class="form-label" style="margin-bottom: 0;">Account Active</label>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn-dash btn-accent" style="width: 100%; justify-content: center;">
+        ✓ Save Staff Member
+      </button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

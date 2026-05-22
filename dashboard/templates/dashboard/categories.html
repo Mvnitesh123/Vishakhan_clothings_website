@@ -1,0 +1,242 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Category Settings — Vishakhan Clothings{% endblock %}
+{% block header_title %}Category & Subcategory Management{% endblock %}
+
+{% block content %}
+
+<!-- ACTION HEADER -->
+<div class="action-row" style="justify-content: flex-end;">
+  <div style="display: flex; gap: 15px;">
+    <!-- Add Category Modals Trigger -->
+    <button type="button" class="btn-dash btn-outline" onclick="openModal('addCategoryModal')">
+      + New Main Category
+    </button>
+    <button type="button" class="btn-dash btn-accent" onclick="openModal('addSubCategoryModal')">
+      + New Subcategory
+    </button>
+  </div>
+</div>
+
+<!-- CATEGORIES GRID -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
+  
+  {% for cat in categories %}
+  <div class="card-dash" style="display: flex; flex-direction: column; height: 100%;">
+    
+    <!-- MAIN CATEGORY HEADER -->
+    <div style="display: flex; gap: 15px; border-bottom: 1px solid var(--border-dash); padding-bottom: 15px; margin-bottom: 15px;">
+      {% if cat.image %}
+        <img src="{{ cat.image.url }}" style="width: 50px; height: 50px; border-radius: 6px; object-fit: cover;" />
+      {% else %}
+        <div style="width: 50px; height: 50px; border-radius: 6px; background: var(--bg-input); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--text-muted);">No Img</div>
+      {% endif %}
+      
+      <div style="flex: 1;">
+        <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 600;">{{ cat.name }}</h3>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Slug: <code>{{ cat.slug }}</code></span>
+      </div>
+      
+      <div style="display: flex; gap: 5px;">
+        <button type="button" class="btn-dash btn-outline btn-sm" onclick="populateEditCategoryModal('{{ cat.id }}', '{{ cat.name }}', '{{ cat.is_active }}')" style="padding: 5px 8px;">✎</button>
+        
+        <form action="{% url 'dashboard:category_delete' cat.id %}" method="POST" onsubmit="return confirm('Deleting a main category will delete all its products. Are you sure?');" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn-dash btn-outline btn-sm" style="color: var(--danger); border-color: rgba(239,68,68,0.2); padding: 5px 8px;">✕</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- NESTED SUBCATEGORIES LIST -->
+    <div style="flex: 1;">
+      <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 10px; letter-spacing: 0.05em;">Subcategories</h4>
+      
+      <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px;">
+        {% for sub in cat.subcategories.all %}
+        <li style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border: 1px solid var(--border-dash); border-radius: 6px; background-color: rgba(255,255,255,0.01);">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            {% if sub.image %}
+              <img src="{{ sub.image.url }}" style="width: 25px; height: 25px; border-radius: 4px; object-fit: cover;" />
+            {% endif %}
+            <span style="font-weight: 500; font-size: 0.85rem;">{{ sub.name }}</span>
+          </div>
+          
+          <div style="display: flex; gap: 5px;">
+            <button type="button" class="btn-dash btn-outline btn-sm" onclick="populateEditSubCategoryModal('{{ sub.id }}', '{{ cat.id }}', '{{ sub.name }}', '{{ sub.is_active }}')" style="padding: 3px 6px; font-size: 0.7rem;">✎</button>
+            
+            <form action="{% url 'dashboard:subcategory_delete' sub.id %}" method="POST" onsubmit="return confirm('Are you sure you want to delete this subcategory?');" style="display: inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn-dash btn-outline btn-sm" style="color: var(--danger); border-color: rgba(239,68,68,0.2); padding: 3px 6px; font-size: 0.7rem;">✕</button>
+            </form>
+          </div>
+        </li>
+        {% empty %}
+        <li style="color: var(--text-muted); font-size: 0.8rem; italic; text-align: center; padding: 15px 0;">No subcategories mapped</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  </div>
+  {% empty %}
+  <div class="card-dash" style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 50px 0;">
+    No categories created yet.
+  </div>
+  {% endfor %}
+  
+</div>
+
+<!-- =========================================================
+   MODALS FOR MAIN CATEGORY & SUBCATEGORY CRUD
+   ========================================================= -->
+
+<!-- ADD MAIN CATEGORY MODAL -->
+<div id="addCategoryModal" class="modal-dash">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Add Main Category</h3>
+      <button type="button" class="modal-close" onclick="closeModal('addCategoryModal')">&times;</button>
+    </div>
+    <form action="{% url 'dashboard:category_create' %}" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Category Name</label>
+        {{ category_form.name }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Image Banner (Optional)</label>
+        {{ category_form.image }}
+      </div>
+      <div class="form-group">
+        <div class="form-checkbox-container">
+          {{ category_form.is_active }}
+          <label class="form-label" style="margin-bottom: 0;">Active in Navigation</label>
+        </div>
+      </div>
+      <button type="submit" class="btn-dash btn-accent" style="width: 100%; justify-content: center;">
+        ✓ Save Category
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT MAIN CATEGORY MODAL -->
+<div id="editCategoryModal" class="modal-dash">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Edit Main Category</h3>
+      <button type="button" class="modal-close" onclick="closeModal('editCategoryModal')">&times;</button>
+    </div>
+    <form id="editCategoryForm" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Category Name</label>
+        {{ category_form.name }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Update Image Banner (Optional)</label>
+        {{ category_form.image }}
+      </div>
+      <div class="form-group">
+        <div class="form-checkbox-container">
+          {{ category_form.is_active }}
+          <label class="form-label" style="margin-bottom: 0;">Active in Navigation</label>
+        </div>
+      </div>
+      <button type="submit" class="btn-dash btn-accent" style="width: 100%; justify-content: center;">
+        ✓ Update Category
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ADD SUBCATEGORY MODAL -->
+<div id="addSubCategoryModal" class="modal-dash">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Add Subcategory</h3>
+      <button type="button" class="modal-close" onclick="closeModal('addSubCategoryModal')">&times;</button>
+    </div>
+    <form action="{% url 'dashboard:subcategory_create' %}" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Parent Category</label>
+        {{ subcategory_form.category }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subcategory Name</label>
+        {{ subcategory_form.name }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Image Banner (Optional)</label>
+        {{ subcategory_form.image }}
+      </div>
+      <div class="form-group">
+        <div class="form-checkbox-container">
+          {{ subcategory_form.is_active }}
+          <label class="form-label" style="margin-bottom: 0;">Active</label>
+        </div>
+      </div>
+      <button type="submit" class="btn-dash btn-accent" style="width: 100%; justify-content: center;">
+        ✓ Save Subcategory
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT SUBCATEGORY MODAL -->
+<div id="editSubCategoryModal" class="modal-dash">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Edit Subcategory</h3>
+      <button type="button" class="modal-close" onclick="closeModal('editSubCategoryModal')">&times;</button>
+    </div>
+    <form id="editSubCategoryForm" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Parent Category</label>
+        {{ subcategory_form.category }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subcategory Name</label>
+        {{ subcategory_form.name }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Update Image Banner (Optional)</label>
+        {{ subcategory_form.image }}
+      </div>
+      <div class="form-group">
+        <div class="form-checkbox-container">
+          {{ subcategory_form.is_active }}
+          <label class="form-label" style="margin-bottom: 0;">Active</label>
+        </div>
+      </div>
+      <button type="submit" class="btn-dash btn-accent" style="width: 100%; justify-content: center;">
+        ✓ Update Subcategory
+      </button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function populateEditCategoryModal(id, name, isActive) {
+      const form = document.getElementById('editCategoryForm');
+      form.action = `/dashboard/categories/${id}/update/`;
+      form.querySelector('[name="name"]').value = name;
+      form.querySelector('[name="is_active"]').checked = (isActive === 'True' || isActive === 'true');
+      openModal('editCategoryModal');
+  }
+
+  function populateEditSubCategoryModal(id, parentCatId, name, isActive) {
+      const form = document.getElementById('editSubCategoryForm');
+      form.action = `/dashboard/subcategories/${id}/update/`;
+      form.querySelector('[name="category"]').value = parentCatId;
+      form.querySelector('[name="name"]').value = name;
+      form.querySelector('[name="is_active"]').checked = (isActive === 'True' || isActive === 'true');
+      openModal('editSubCategoryModal');
+  }
+</script>
+{% endblock %}

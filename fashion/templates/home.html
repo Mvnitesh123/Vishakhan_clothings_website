@@ -141,10 +141,18 @@
             <!-- Product Image -->
             <div class="product-img-wrap">
               {% if product.image %}
-                  <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-img product-img--primary" loading="lazy" />
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-img product-img--primary" data-original-src="{{ product.image.url }}" loading="lazy" />
                 {% else %}
                   <div class="product-img-placeholder"></div>
                 {% endif %}
+
+              {% if product.unique_colors %}
+                <div class="product-color-swatches">
+                  {% for color_item in product.unique_colors %}
+                    <span class="color-swatch-row">{{ color_item.color }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
 
               <!-- Badges -->
               <div class="product-badges">
@@ -283,9 +291,17 @@
             <a href="{% url 'product_detail' product.slug %}" class="product-card-link">
               <div class="product-img-wrap">
                 {% if product.image %}
-                  <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-img product-img--primary" loading="lazy" />
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-img product-img--primary" data-original-src="{{ product.image.url }}" loading="lazy" />
                 {% else %}
                   <div class="product-img-placeholder"></div>
+                {% endif %}
+
+                {% if product.unique_colors %}
+                  <div class="product-color-swatches">
+                    {% for color_item in product.unique_colors %}
+                      <span class="color-swatch-row">{{ color_item.color }}</span>
+                    {% endfor %}
+                  </div>
                 {% endif %}
                 <div class="product-actions-overlay">
                   <button class="card-action-btn wishlist-btn {% if product.id in wishlist_product_ids %}active{% endif %}" data-product-id="{{ product.id }}" title="Wishlist">

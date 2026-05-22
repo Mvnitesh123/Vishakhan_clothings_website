@@ -1,0 +1,257 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Receipt: #{{ order.order_id|stringformat:"s"|slice:":8" }} — Vishakhan Clothings{% endblock %}
+{% block header_title %}Receipt & Fulfillment Management{% endblock %}
+
+{% block content %}
+
+<!-- BACK LINK -->
+<div style="margin-bottom: 24px;">
+  <a href="{% url 'dashboard:orders' %}" class="btn-dash btn-outline btn-sm">
+    ← Back to Orders
+  </a>
+</div>
+
+<!-- TOP GRID: DYNAMIC FULFILLMENT PANEL & CUSTOMER DATA -->
+<div class="dashboard-row" style="grid-template-columns: 2fr 1fr; gap: 30px;">
+  
+  <!-- LEFT: ORDER RECEIPT SUMMARY -->
+  <div style="display: flex; flex-direction: column; gap: 24px;">
+    <!-- Items Card -->
+    <div class="card-dash" style="margin-bottom: 0;">
+      <div class="card-title">Purchased Items Breakdown</div>
+      
+      <div class="table-responsive">
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>Product Variant</th>
+              <th>Unit Price</th>
+              <th>Quantity</th>
+              <th style="text-align: right;">Total Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+            <tr>
+              <td>
+                <div class="product-row-info">
+                  {% if item.product_variant.image %}
+                    <img src="{{ item.product_variant.image.url }}" class="product-thumb" alt="" />
+                  {% elif item.product_variant.product.image %}
+                    <img src="{{ item.product_variant.product.image.url }}" class="product-thumb" alt="" />
+                  {% else %}
+                    <div class="product-thumb" style="background: var(--bg-input);"></div>
+                  {% endif %}
+                  <div>
+                    <h4 style="font-weight: 600; font-size: 0.9rem; margin-bottom: 2px;">{{ item.product_variant.product.name }}</h4>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Size: {{ item.size }} | Color: {{ item.product_variant.color }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>₹{{ item.price }}</td>
+              <td style="font-weight: 600;">{{ item.quantity }}</td>
+              <td style="text-align: right; font-weight: bold;">₹{{ item.total_price }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Financial Calculation breakdown -->
+      <div style="margin-top: 30px; border-top: 1px solid var(--border-dash); padding-top: 20px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; font-size: 0.9rem;">
+        <div style="display: flex; justify-content: space-between; width: 280px; color: var(--text-muted);">
+          <span>Tax:</span>
+          <span>₹{{ order.tax }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; width: 280px; color: var(--text-muted);">
+          <span>Shipping Charge:</span>
+          <span>₹{{ order.shipping_charge }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; width: 280px; font-size: 1.25rem; font-weight: bold; color: var(--text-main); border-top: 1px dashed var(--border-dash); padding-top: 10px; margin-top: 5px;">
+          <span>Grand Total:</span>
+          <span style="color: var(--accent);">₹{{ order.total_amount }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Transaction gateway logs -->
+    <div class="card-dash" style="margin-bottom: 0;">
+      <div class="card-title">Payment & Gateway logs</div>
+      {% if payment %}
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; font-size: 0.9rem;">
+        <div>
+          <span style="display: block; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">Payment Method</span>
+          <span style="font-weight: 600;">{{ payment.get_payment_method_display }}</span>
+        </div>
+        <div>
+          <span style="display: block; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">Transaction ID</span>
+          <code style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">{{ payment.payment_id }}</code>
+        </div>
+        <div>
+          <span style="display: block; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">Processed Amount</span>
+          <span style="font-weight: 600; color: var(--success);">₹{{ payment.amount }}</span>
+        </div>
+        <div>
+          <span style="display: block; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">Gateway Status</span>
+          <span class="badge-pill 
+            {% if payment.status == 'SUCCESS' %}badge-success
+            {% elif payment.status == 'PENDING' %}badge-warning
+            {% else %}badge-danger{% endif %}">
+            {{ payment.get_status_display }}
+          </span>
+        </div>
+        <div>
+          <span style="display: block; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">Timestamp</span>
+          <span style="font-weight: 600;">{{ payment.created_at|date:"M d, Y — h:i A" }}</span>
+        </div>
+        <div>
+          <span style="display: block; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">Paid Date</span>
+          <span style="font-weight: 600;">{{ payment.paid_at|date:"M d, Y — h:i A"|default:"—" }}</span>
+        </div>
+      </div>
+      {% else %}
+      <div style="color: var(--text-muted); italic; font-size: 0.85rem; padding: 10px 0;">
+        ⚠ No gateway transaction logs registered for this order. (Likely custom manual entries or COD checkout).
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- RIGHT SIDE: CONTROL STATUSES & CUSTOMER DETAIL -->
+  <div style="display: flex; flex-direction: column; gap: 24px;">
+    
+    <!-- DYNAMIC STATUS CONTROLLERS -->
+    <div class="card-dash" style="margin-bottom: 0;">
+      <div class="card-title">Order Status Fulfillment</div>
+      
+      <!-- Order Status dropdown form -->
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="form-label">Update Order State</label>
+        <select id="order-status-selector" class="form-select select-styled">
+          {% for code, label in order_statuses %}
+            <option value="{{ code }}" {% if order.order_status == code %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button type="button" class="btn-dash btn-accent btn-sm" onclick="submitOrderStatusUpdate()" style="margin-top: 10px; width: 100%; justify-content: center;">
+          Update Fulfillment State
+        </button>
+      </div>
+
+      <!-- Payment Status dropdown form -->
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label">Update Billing State</label>
+        <select id="payment-status-selector" class="form-select select-styled">
+          {% for code, label in payment_statuses %}
+            <option value="{{ code }}" {% if order.payment_status == code %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button type="button" class="btn-dash btn-accent btn-sm" onclick="submitPaymentStatusUpdate()" style="margin-top: 10px; width: 100%; justify-content: center;">
+          Update Billing State
+        </button>
+      </div>
+    </div>
+
+    <!-- CUSTOMER PROFILE CARD -->
+    <div class="card-dash" style="margin-bottom: 0;">
+      <div class="card-title">Customer Card</div>
+      <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
+        <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+          {{ order.user.username|slice:":1"|upper }}
+        </div>
+        <div>
+          <h4 style="font-weight: 600;"><a href="{% url 'dashboard:user_detail' order.user.id %}" style="color: inherit; text-decoration: none;">{{ order.user.username }}</a></h4>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">{{ order.user.email }}</span>
+        </div>
+      </div>
+      <a href="{% url 'dashboard:user_detail' order.user.id %}" class="btn-dash btn-outline btn-sm" style="width: 100%; justify-content: center;">View Customer Profile</a>
+    </div>
+
+    <!-- SHIPPING ADDRESS CARD -->
+    <div class="card-dash" style="margin-bottom: 0;">
+      <div class="card-title">Delivery Location</div>
+      {% if order.address %}
+      <h4 style="font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">{{ order.address.full_name }}</h4>
+      <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+        {{ order.address.address_line }}<br/>
+        {{ order.address.city }}, {{ order.address.state }} - {{ order.address.postal_code }}<br/>
+        {{ order.address.country }}
+      </p>
+      <span style="display: block; font-size: 0.8rem; margin-top: 8px; font-weight: bold;">📞 {{ order.address.phone }}</span>
+      {% else %}
+      <div style="font-size: 0.8rem; color: var(--text-muted); italic;">
+        ⚠ Address record missing or has been deleted from user profile.
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function submitOrderStatusUpdate() {
+      const statusSelector = document.getElementById('order-status-selector');
+      const newStatus = statusSelector.value;
+      const csrfToken = '{{ csrf_token }}';
+      const url = "{% url 'dashboard:order_update_status' order.id %}";
+
+      const formData = new FormData();
+      formData.append('order_status', newStatus);
+
+      fetch(url, {
+          method: 'POST',
+          headers: {
+              'X-CSRFToken': csrfToken
+          },
+          body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              showToast(data.message);
+          } else {
+              showToast(data.message || 'Error updating order status.', 'danger');
+          }
+      })
+      .catch(err => {
+          console.error(err);
+          showToast('Failed to update order status.', 'danger');
+      });
+  }
+
+  function submitPaymentStatusUpdate() {
+      const paymentSelector = document.getElementById('payment-status-selector');
+      const newStatus = paymentSelector.value;
+      const csrfToken = '{{ csrf_token }}';
+      const url = "{% url 'dashboard:order_update_payment' order.id %}";
+
+      const formData = new FormData();
+      formData.append('payment_status', newStatus);
+
+      fetch(url, {
+          method: 'POST',
+          headers: {
+              'X-CSRFToken': csrfToken
+          },
+          body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              showToast(data.message);
+          } else {
+              showToast(data.message || 'Error updating payment status.', 'danger');
+          }
+      })
+      .catch(err => {
+          console.error(err);
+          showToast('Failed to update payment status.', 'danger');
+      });
+  }
+</script>
+{% endblock %}

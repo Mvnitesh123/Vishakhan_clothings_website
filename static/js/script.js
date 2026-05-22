@@ -603,26 +603,42 @@ function initCartDrawer() {
   if (detailAddBtn) {
     detailAddBtn.addEventListener('click', async function(e) {
       e.preventDefault();
-      const variantInput = document.getElementById('selectedVariantId');
-      const variantId = variantInput ? variantInput.value : '';
       const productId = detailAddBtn.getAttribute('data-product-id');
 
-      if (!variantId) {
-        // If variant size/color selection has variants but none selected
-        const variantsExist = document.querySelector('.product-variants');
-        if (variantsExist) {
-          showToast('Please select size and color first');
+      // Step 1: Validate size is selected
+      const activeSizeCapsule = document.querySelector('.size-capsule.active');
+      if (!activeSizeCapsule) {
+        showToast('Please select a size first');
+        return;
+      }
+
+      // Step 2: Resolve size value (handle CUSTOM)
+      let size = activeSizeCapsule.getAttribute('data-size');
+      if (size === 'CUSTOM') {
+        const customInput = document.getElementById('customSizeInput');
+        if (!customInput || !customInput.value.trim()) {
+          showToast('Please enter your custom size details');
           return;
         }
+        size = customInput.value.trim();
+      }
+
+      // Step 3: Validate color/variant is selected
+      const variantInput = document.getElementById('selectedVariantId');
+      const variantId = variantInput ? variantInput.value : '';
+      if (!variantId) {
+        showToast('Please select a color first');
+        return;
       }
 
       const qtyInput = document.getElementById('productQty');
       const quantity = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
 
-      const res = await ajaxPOST('/cart/add/', { 
-        'variant_id': variantId, 
+      const res = await ajaxPOST('/cart/add/', {
+        'variant_id': variantId,
         'product_id': productId,
-        'quantity': quantity 
+        'quantity': quantity,
+        'size': size
       });
 
       if (res.success) {
@@ -947,4 +963,6 @@ function initReviewForm() {
     });
   });
 }
+
+
 

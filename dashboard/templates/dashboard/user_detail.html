@@ -1,0 +1,163 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}User Profile: {{ customer.username }} — Vishakhan Clothings{% endblock %}
+{% block header_title %}User Account Profile{% endblock %}
+
+{% block content %}
+
+<!-- BACK ACTION BUTTON -->
+<div style="margin-bottom: 24px;">
+  <a href="{% url 'dashboard:users' %}" class="btn-dash btn-outline btn-sm">
+    ← Back to List
+  </a>
+</div>
+
+<!-- TOP LAYOUT: PROFILE INFO & ADDRESSES -->
+<div class="dashboard-row" style="grid-template-columns: 1fr 1fr; margin-bottom: 24px;">
+  <!-- Profile summary card -->
+  <div class="card-dash" style="margin-bottom: 0;">
+    <div class="card-title">Account Details</div>
+    
+    <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 24px;">
+      {% if customer.profile_image %}
+        <img src="{{ customer.profile_image.url }}" alt="avatar" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent);" />
+      {% else %}
+        <div style="width: 80px; height: 80px; border-radius: 50%; background-color: var(--accent); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; border: 3px solid rgba(255,255,255,0.1);">
+          {{ customer.username|slice:":1"|upper }}
+        </div>
+      {% endif %}
+      
+      <div>
+        <h2 style="font-family: var(--font-serif); font-size: 1.5rem; font-weight: 600;">{{ customer.username }}</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">{{ customer.email }}</p>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.9rem;">
+      <div>
+        <span style="display: block; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">First Name</span>
+        <span style="font-weight: 600;">{{ customer.first_name|default:"Not Provided" }}</span>
+      </div>
+      <div>
+        <span style="display: block; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">Last Name</span>
+        <span style="font-weight: 600;">{{ customer.last_name|default:"Not Provided" }}</span>
+      </div>
+      <div>
+        <span style="display: block; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">Phone Number</span>
+        <span style="font-weight: 600;">{{ customer.phone|default:"Not Provided" }}</span>
+      </div>
+      <div>
+        <span style="display: block; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">Verification Status</span>
+        <span>
+          {% if customer.is_verified %}
+            <span class="badge-pill badge-success">✓ Verified</span>
+          {% else %}
+            <span class="badge-pill badge-warning">Unverified</span>
+          {% endif %}
+        </span>
+      </div>
+      <div>
+        <span style="display: block; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">Role Group</span>
+        <span>
+          {% if customer.is_staff %}
+            <span class="badge-pill badge-warning">Staff Account</span>
+          {% else %}
+            <span class="badge-pill badge-info">Store Customer</span>
+          {% endif %}
+        </span>
+      </div>
+      <div>
+        <span style="display: block; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold;">Date Joined</span>
+        <span style="font-weight: 600;">{{ customer.date_joined|date:"M d, Y" }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delivery Addresses card -->
+  <div class="card-dash" style="margin-bottom: 0;">
+    <div class="card-title">Delivery Locations</div>
+    
+    <div style="display: flex; flex-direction: column; gap: 15px; max-height: 250px; overflow-y: auto; padding-right: 5px;">
+      {% for addr in customer.address_set.all %}
+      <div style="padding: 15px; border: 1px solid var(--border-dash); border-radius: 8px; background: rgba(255,255,255,0.01); position: relative;">
+        {% if addr.is_default %}
+          <span class="badge-pill badge-success" style="position: absolute; top: 15px; right: 15px; font-size: 0.65rem;">Default</span>
+        {% endif %}
+        <h4 style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px;">{{ addr.full_name }}</h4>
+        <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+          {{ addr.address_line }}<br/>
+          {{ addr.city }}, {{ addr.state }} - {{ addr.postal_code }}<br/>
+          {{ addr.country }}
+        </p>
+        <span style="display: block; font-size: 0.75rem; margin-top: 8px; font-weight: bold;">📞 {{ addr.phone }}</span>
+      </div>
+      {% empty %}
+      <div style="text-align: center; color: var(--text-muted); padding: 40px 0;">
+        No saved shipping addresses found.
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOMER ORDERS LIST -->
+<div class="card-dash">
+  <div class="card-title">Order Ledger history</div>
+  
+  <div class="table-responsive">
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Order UUID</th>
+          <th>Created Date</th>
+          <th>Total Amount</th>
+          <th>Shipping Charge</th>
+          <th>Tax</th>
+          <th>Order Status</th>
+          <th>Payment Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td>
+            <a href="{% url 'dashboard:order_detail' o.id %}" style="color: inherit; text-decoration: none; font-family: monospace; font-weight: bold; color: var(--accent);">
+              {{ o.order_id }}
+            </a>
+          </td>
+          <td>{{ o.created_at|date:"M d, Y — h:i A" }}</td>
+          <td style="font-weight: bold;">₹{{ o.total_amount }}</td>
+          <td>₹{{ o.shipping_charge }}</td>
+          <td>₹{{ o.tax }}</td>
+          <td>
+            <span class="badge-pill 
+              {% if o.order_status == 'DELIVERED' %}badge-success
+              {% elif o.order_status == 'PROCESSING' or o.order_status == 'SHIPPED' %}badge-info
+              {% elif o.order_status == 'PENDING' %}badge-warning
+              {% else %}badge-danger{% endif %}">
+              {{ o.get_order_status_display }}
+            </span>
+          </td>
+          <td>
+            <span class="badge-pill 
+              {% if o.payment_status == 'PAID' %}badge-success
+              {% elif o.payment_status == 'PENDING' %}badge-warning
+              {% else %}badge-danger{% endif %}">
+              {{ o.get_payment_status_display }}
+            </span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px 0;">
+            No orders found placed by this account.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
