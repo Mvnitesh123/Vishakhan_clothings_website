@@ -119,7 +119,7 @@ AUTH_USER_MODEL = 'fashion.User'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-import dj_database_url
+# import dj_database_url
 # Detect PythonAnywhere
 # ON_PYTHONANYWHERE = 'PYTHONANYWHERE_SITE' in os.environ
 
