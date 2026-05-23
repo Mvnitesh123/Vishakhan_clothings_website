@@ -148,6 +148,7 @@ ON_PYTHONANYWHERE = 'PYTHONANYWHERE_SITE' in os.environ
 #             },
 #         }
 #     }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
