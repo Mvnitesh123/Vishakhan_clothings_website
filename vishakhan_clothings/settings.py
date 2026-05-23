@@ -120,21 +120,34 @@ AUTH_USER_MODEL = 'fashion.User'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 import dj_database_url
+ON_PYTHONANYWHERE = 'PYTHONANYWHERE_SITE' in os.environ
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'neondb',
-        'USER': 'neondb_owner',
-        'PASSWORD': 'npg_bjYnrLC6vXa1',
-        'HOST': 'ep-delicate-tooth-aow4e5y0-pooler.c-2.ap-southeast-1.aws.neon.tech',
-        'PORT': '5432',
-        'CONN_MAX_AGE': 600,
-        'OPTIONS': {
-            'sslmode': 'require',
-        },
+
+if ON_PYTHONANYWHERE:
+    # SQLite for PythonAnywhere free plan
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+
+else:
+    # PostgreSQL for local / other hosting
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME'),
+            'USER': os.getenv('DB_USER'),
+            'PASSWORD': os.getenv('DB_PASSWORD'),
+            'HOST': os.getenv('DB_HOST'),
+            'PORT': os.getenv('DB_PORT'),
+            'CONN_MAX_AGE': 600,
+            'OPTIONS': {
+                'sslmode': 'require',
+            },
+        }
+    }
 
 
 
