@@ -121,7 +121,7 @@ AUTH_USER_MODEL = 'fashion.User'
 
 import dj_database_url
 # Detect PythonAnywhere
-ON_PYTHONANYWHERE = 'PYTHONANYWHERE_SITE' in os.environ
+# ON_PYTHONANYWHERE = 'PYTHONANYWHERE_SITE' in os.environ
 
 # if ON_PYTHONANYWHERE:
 #     # SQLite for PythonAnywhere free plan
