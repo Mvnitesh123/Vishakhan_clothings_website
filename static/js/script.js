@@ -82,6 +82,7 @@ function initPreloader() {
       width = 100;
       clearInterval(interval);
       setTimeout(() => {
+        preloader.style.backgroundColor = 'transparent';
         preloader.style.opacity = '0';
         preloader.style.visibility = 'hidden';
       }, 500);
