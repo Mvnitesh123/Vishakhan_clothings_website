@@ -80,9 +80,9 @@
           </div>
 
           <!-- In Cart Status Alert -->
-          <div id="cartStatusAlert" style="{% if is_in_cart %}display: flex;{% else %}display: none;{% endif %} align-items: center; gap: 12px; background: rgba(var(--accent-rgb, 10, 10, 10), 0.05); border: 1.5px solid var(--accent); padding: 10px 16px; border-radius: 12px; max-width: 320px; flex-shrink: 0;">
+          <div id="cartStatusAlert" style="{% if is_in_cart %}display: flex;{% else %}display: none;{% endif %} align-items: center; gap: 12px; background: rgba(var(--accent-rgb, 10, 10, 10), 0.05); border: 1.5px solid var(--accent); padding: 10px 16px; border-radius: 12px; max-width: 100%; width: 320px; box-sizing: border-box;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="flex-shrink: 0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <div style="flex: 1;">
+            <div style="flex: 1; min-width: 0;">
               <p style="font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin: 0;">Already in Your Bag</p>
               <p style="font-size: 0.76rem; color: var(--text-muted); margin: 2px 0 0 0; line-height: 1.3;">Select other sizes or colors below if desired.</p>
             </div>
@@ -176,9 +176,9 @@
           </div>
           
           <!-- Custom Size Input -->
-          <div id="customSizeContainer" style="display: none; margin-top: 20px; padding: 15px; background: var(--bg-offset); border-radius: 10px; border: 1px solid var(--border);">
+          <div id="customSizeContainer" style="display: none; margin-top: 20px; padding: 15px; background: var(--bg-offset); border-radius: 10px; border: 1px solid var(--border); box-sizing: border-box; width: 100%;">
             <label for="customSizeInput" style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">Enter Your Custom Size</label>
-            <input type="text" id="customSizeInput" name="custom_size_details" placeholder="e.g. 28, 30, 32" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-main); color: var(--text-main); font-size: 0.9rem;">
+            <input type="text" id="customSizeInput" name="custom_size_details" placeholder="e.g. 28, 30, 32" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-main); color: var(--text-main); font-size: 0.9rem; box-sizing: border-box;">
           </div>
 
           <input type="hidden" name="variant_id" id="selectedVariantId" value="">
@@ -241,7 +241,7 @@
                 <!-- Review text comment -->
                 <div style="margin-bottom: 20px;">
                   <label for="reviewCommentField" style="display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); font-weight: 700; margin-bottom: 8px;">Your Review</label>
-                  <textarea id="reviewCommentField" name="comment" placeholder="Tell us what you liked or disliked about this item. How is the fit, fabric, and quality? (Optional)" style="width: 100%; min-height: 120px; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-main); color: var(--text-main); font-family: inherit; font-size: 0.95rem; line-height: 1.6; resize: vertical; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+                  <textarea id="reviewCommentField" name="comment" placeholder="Tell us what you liked or disliked about this item. How is the fit, fabric, and quality? (Optional)" style="width: 100%; min-height: 120px; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-main); color: var(--text-main); font-family: inherit; font-size: 0.95rem; line-height: 1.6; resize: vertical; outline: none; transition: border-color 0.2s; box-sizing: border-box;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
                 </div>
 
                 <div style="display: flex; gap: 15px;">
@@ -303,6 +303,14 @@
     border-color: var(--accent-light) !important;
   }
 
+  /* Prevent horizontal overflow */
+  .product-detail-layout, .product-detail-layout * {
+    box-sizing: border-box;
+  }
+  .product-detail-layout img {
+    max-width: 100%;
+  }
+
   /* ===== Product Detail — Mobile Responsive ===== */
   @media (max-width: 1024px) {
     .product-detail-layout {
@@ -322,10 +330,19 @@
     .product-detail-layout {
       grid-template-columns: 1fr !important;
       gap: 2rem !important;
+      width: 100% !important;
+      min-width: 0 !important;
     }
     /* Gallery: switch to horizontal thumbnails on mobile */
     .product-gallery {
       position: static !important;
+      width: 100% !important;
+      min-width: 0 !important;
+    }
+    .product-details {
+      width: 100% !important;
+      min-width: 0 !important;
+      overflow: hidden; /* prevents child blowout */
     }
     .thumbnail-grid {
       flex-direction: row !important;
@@ -343,9 +360,10 @@
       flex-shrink: 0 !important;
     }
     .main-image-container {
-      height: 55vw !important;
+      height: 65vw !important; /* Adjusted slightly to look better */
       min-height: 260px !important;
       max-height: 420px !important;
+      width: 100% !important;
     }
     /* Image layout: stack main image then thumbnails below */
     .product-gallery-inner {
