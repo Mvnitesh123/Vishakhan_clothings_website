@@ -186,59 +186,69 @@
         text-align: center !important;
       }
     }
+  }
 
-    /* Premium Bottom Sheet Modal for mobile dropdown menus */
+  /* Reduce dropdown size and font-size for very small viewports */
+  @media (max-width: 350px) and (max-height: 600px) {
     .dropdown-menu {
-      position: fixed !important;
-      top: auto !important;
-      bottom: -100% !important;
-      left: 0 !important;
-      right: 0 !important;
-      width: 100% !important;
-      max-height: 85vh !important;
+      padding: 12px 15px !important;
+      max-height: 380px !important;
       overflow-y: auto !important;
-      background: var(--bg-main) !important;
-      border: none !important;
-      border-top: 1px solid var(--border) !important;
-      border-radius: 20px 20px 0 0 !important;
-      box-shadow: 0 -10px 40px rgba(0,0,0,0.3) !important;
-      padding: 24px 20px 40px !important;
-      margin: 0 !important;
-      z-index: 1000000 !important;
-      display: block !important;
-      visibility: hidden !important;
-      transition: bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s !important;
     }
 
-    .dropdown-menu.show-sheet {
-      bottom: 0 !important;
-      visibility: visible !important;
+    #filterDropdown .dropdown-menu {
+      width: 260px !important;
+      min-width: unset !important;
     }
 
+    #sortDropdown .dropdown-menu {
+      width: 160px !important;
+      min-width: unset !important;
+      padding: 6px 0 !important;
+    }
+
+    /* Reduce vertical gaps */
+    .dropdown-menu > form > div {
+      margin-bottom: 10px !important;
+    }
+
+    /* Reduce labels size */
+    .dropdown-menu label {
+      font-size: 0.68rem !important;
+      margin-bottom: 6px !important;
+    }
+
+    /* Reduce input/select size */
+    .dropdown-menu select,
+    .dropdown-menu input {
+      padding: 6px 10px !important;
+      font-size: 0.78rem !important;
+    }
+
+    /* Reduce button sizes */
+    .dropdown-menu button,
+    .dropdown-menu a[style*="border: 1px solid var(--border)"] {
+      padding: 8px !important;
+      font-size: 0.7rem !important;
+    }
+
+    /* Reduce option list links */
     .dropdown-menu a {
-      font-size: 0.95rem !important;
-      padding: 12px 20px !important;
-      border-bottom: 1px solid var(--border);
-    }
-    .dropdown-menu a:last-child {
-      border-bottom: none;
-    }
-
-    .mobile-sheet-header {
-      display: none;
-    }
-
-    /* Let's style the custom backdrop */
-    .mobile-filter-backdrop {
-      display: block;
-      opacity: 0;
-      pointer-events: none;
-    }
-    .mobile-filter-backdrop.active {
-      opacity: 1;
-      pointer-events: auto;
+      padding: 6px 15px !important;
+      font-size: 0.78rem !important;
     }
   }
+
+  /* Desktop-only overrides: hide Advanced Filter dropdown button and push Sort dropdown to the right edge */
+  @media (min-width: 769px) {
+    #filterDropdown {
+      display: none !important;
+    }
+    #sortDropdown {
+      margin-left: auto !important;
+    }
+  }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -254,6 +264,7 @@
 <!-- Filter & Sort Bar -->
 <section class="filter-bar" style="background: var(--bg-main); border-bottom: 1px solid var(--border); position: sticky; top: 80px; z-index: 100;">
   <div class="container">
+
     <div class="filter-bar-inner">
       <!-- Category Custom Dropdown -->
       <div class="custom-dropdown" id="categoryDropdown">
@@ -323,8 +334,7 @@
         {% if current_top_rated %}★ Top Rated{% else %}Top Rated{% endif %}
       </a>
 
-      <!-- Mobile Backdrop for Bottom Sheets -->
-      <div class="mobile-filter-backdrop" id="mobileFilterBackdrop" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 999998; backdrop-filter: blur(3px); transition: opacity 0.3s ease;"></div>
+
 
       <!-- Advanced Filter Dropdown (Filters Dashboard) -->
       <div class="custom-dropdown" id="filterDropdown">
@@ -559,113 +569,8 @@
     {% endif %}
   </div>
 </section>
+
 {% endblock %}
 
 {% block extra_js %}
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const backdrop = document.getElementById('mobileFilterBackdrop');
-    
-    const filterDropdown = document.getElementById('filterDropdown');
-    const sortDropdown = document.getElementById('sortDropdown');
-    
-    const filterMenu = filterDropdown ? filterDropdown.querySelector('.dropdown-menu') : null;
-    const sortMenu = sortDropdown ? sortDropdown.querySelector('.dropdown-menu') : null;
-    
-    const filterTrigger = filterDropdown ? filterDropdown.querySelector('.dropdown-trigger') : null;
-    const sortTrigger = sortDropdown ? sortDropdown.querySelector('.dropdown-trigger') : null;
-
-    function isMobile() {
-      return window.matchMedia("(max-width: 768px)").matches;
-    }
-
-    function closeAllSheets() {
-      if (filterMenu) filterMenu.classList.remove('show-sheet');
-      if (sortMenu) sortMenu.classList.remove('show-sheet');
-      if (backdrop) {
-        backdrop.classList.remove('active');
-        setTimeout(() => {
-          backdrop.style.display = 'none';
-        }, 300);
-      }
-    }
-
-    function openSheet(menu) {
-      // Close others first
-      if (filterMenu && filterMenu !== menu) filterMenu.classList.remove('show-sheet');
-      if (sortMenu && sortMenu !== menu) sortMenu.classList.remove('show-sheet');
-      
-      if (backdrop) {
-        backdrop.style.display = 'block';
-        // Force layout reflow
-        backdrop.offsetHeight;
-        backdrop.classList.add('active');
-      }
-      
-      if (menu) {
-        menu.classList.add('show-sheet');
-      }
-    }
-
-    if (filterTrigger && filterMenu) {
-      filterTrigger.addEventListener('click', function(e) {
-        if (!isMobile()) return;
-        e.preventDefault();
-        e.stopPropagation(); // Stops bubbling to script.js because we use capture: true
-        if (filterMenu.classList.contains('show-sheet')) {
-          closeAllSheets();
-        } else {
-          openSheet(filterMenu);
-        }
-      }, true); // Capture phase intercept
-    }
-
-    if (sortTrigger && sortMenu) {
-      sortTrigger.addEventListener('click', function(e) {
-        if (!isMobile()) return;
-        e.preventDefault();
-        e.stopPropagation();
-        if (sortMenu.classList.contains('show-sheet')) {
-          closeAllSheets();
-        } else {
-          openSheet(sortMenu);
-        }
-      }, true); // Capture phase intercept
-    }
-
-    // Close buttons inside sheets
-    document.querySelectorAll('.close-sheet-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        if (!isMobile()) return;
-        e.preventDefault();
-        e.stopPropagation();
-        closeAllSheets();
-      }, true);
-    });
-
-    // Backdrop click
-    if (backdrop) {
-      backdrop.addEventListener('click', function(e) {
-        if (!isMobile()) return;
-        e.preventDefault();
-        e.stopPropagation();
-        closeAllSheets();
-      }, true);
-    }
-    
-    // Stop propagation inside dropdown menus to prevent closing
-    if (filterMenu) {
-      filterMenu.addEventListener('click', function(e) {
-        if (!isMobile()) return;
-        e.stopPropagation();
-      }, true);
-    }
-    if (sortMenu) {
-      sortMenu.addEventListener('click', function(e) {
-        if (!isMobile()) return;
-        e.stopPropagation();
-      }, true);
-    }
-  });
-</script>
 {% endblock %}
