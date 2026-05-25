@@ -389,12 +389,13 @@ def product_list(request):
         products = products.filter(product_type__in=['Pant', 'Shorts & Track'])
 
     categories = Category.objects.filter(is_active=True).order_by('name')
+    from .models import SubCategory
+    all_subcategories = SubCategory.objects.filter(is_active=True).select_related('category').order_by('name')
     
     # Available subcategories for the current category
     available_subcategories = []
     if cat_slugs:
-        from .models import SubCategory
-        available_subcategories = SubCategory.objects.filter(category__slug=cat_slugs[0], is_active=True).order_by('name')
+        available_subcategories = all_subcategories.filter(category__slug=cat_slugs[0])
 
     # Pagination
     paginator = Paginator(products, 16)
@@ -410,6 +411,7 @@ def product_list(request):
     context.update({
         'products': products,
         'all_categories': categories,
+        'all_subcategories': all_subcategories,
         'available_subcategories': available_subcategories,
         'current_sort': sort_by,
         'current_category': ','.join(cat_slugs),

@@ -6,12 +6,22 @@
 {% block content %}
 <section class="section-pad" style="margin-top: 80px;">
   <div class="container">
+    
+    <!-- Breadcrumbs Mobile -->
+    <div class="breadcrumbs breadcrumbs--mobile" style="display: none; margin-bottom: 1.5rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); padding: 0 4px;">
+      <a href="{% url 'home' %}" style="color: inherit;">Home</a> / 
+      {% if product.category %}
+        <a href="{% url 'category_detail' product.category.slug %}" style="color: inherit;">{{ product.category.name }}</a> /
+      {% endif %}
+      <span style="color: var(--text-main);">{{ product.name }}</span>
+    </div>
+
     <div class="product-detail-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;">
       
       <!-- Product Images -->
       <div class="product-gallery" style="position: sticky; top: 100px; z-index: 10;">
           {% if product.image %}
-            <div style="display: flex; flex-direction: row; gap: 1.5rem; align-items: flex-start;">
+            <div class="product-gallery-inner" style="display: flex; flex-direction: row; gap: 1.5rem; align-items: flex-start;">
               <div class="thumbnail-grid" style="display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; height: calc(100vh - 120px); min-height: 500px; width: 80px; flex-shrink: 0; scrollbar-width: none; -ms-overflow-style: none;">
                 
                 <div class="thumbnail active" data-index="0" style="width: 80px; height: 100px; flex-shrink: 0; border-radius: 4px; overflow: hidden; background: #f5f5f5; cursor: pointer; border: 2px solid transparent; transition: border-color 0.3s;">
@@ -44,7 +54,7 @@
 
       <!-- Product Info -->
       <div class="product-details">
-        <div class="breadcrumbs" style="margin-bottom: 1rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted);">
+        <div class="breadcrumbs breadcrumbs--desktop" style="margin-bottom: 1rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted);">
           <a href="{% url 'home' %}" style="color: inherit;">Home</a> / 
           {% if product.category %}
             <a href="{% url 'category_detail' product.category.slug %}" style="color: inherit;">{{ product.category.name }}</a> /
@@ -303,9 +313,15 @@
   }
 
   @media (max-width: 768px) {
+    .breadcrumbs--mobile {
+      display: block !important;
+    }
+    .breadcrumbs--desktop {
+      display: none !important;
+    }
     .product-detail-layout {
       grid-template-columns: 1fr !important;
-      gap: 0 !important;
+      gap: 2rem !important;
     }
     /* Gallery: switch to horizontal thumbnails on mobile */
     .product-gallery {
@@ -332,7 +348,7 @@
       max-height: 420px !important;
     }
     /* Image layout: stack main image then thumbnails below */
-    .product-gallery > div > div {
+    .product-gallery-inner {
       flex-direction: column-reverse !important;
     }
     /* Product info on mobile */
@@ -345,16 +361,24 @@
     .description {
       font-size: 0.95rem !important;
     }
-    /* Actions: full-width */
+    /* Actions: same line */
     .actions {
-      flex-direction: column !important;
+      flex-direction: row !important;
       gap: 10px !important;
+      align-items: stretch !important;
     }
     .actions .btn--full {
+      flex: 1 !important;
       padding: 15px !important;
     }
     .actions .btn--outline {
-      width: 100% !important;
+      width: 56px !important;
+      height: 56px !important;
+      padding: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0 !important;
     }
     /* Reviews */
     .product-reviews-section > div:first-child {
@@ -373,9 +397,6 @@
   }
 
   @media (max-width: 480px) {
-    .product-detail-layout {
-      gap: 0 !important;
-    }
     .product-details h1 {
       font-size: 1.5rem !important;
     }

@@ -65,6 +65,17 @@
     transition: all 0.3s ease;
   }
 
+  .mobile-clear-btn {
+    display: none !important;
+  }
+
+  .desktop-sort-label {
+    display: inline-block;
+  }
+  .mobile-sort-label {
+    display: none !important;
+  }
+
   @media (max-width: 768px) {
     .product-list-hero {
       display: none !important;
@@ -72,11 +83,28 @@
     
     .filter-bar-inner {
       display: grid !important;
-      grid-template-columns: 1fr 1fr !important; /* 2 perfect equal columns */
+      grid-template-columns: 1fr 1fr 1fr !important; /* 3 perfect columns: Filters, Refine, Sort By */
       padding: 6px 12px !important;
       gap: 8px !important;
       width: 100% !important;
       overflow: visible !important;
+    }
+
+    .filter-bar-inner:has(.mobile-clear-btn) {
+      grid-template-columns: 1fr 1fr 1fr auto !important; /* 4 columns if clear btn is active */
+    }
+
+    #filterDropdown {
+      order: 1 !important;
+    }
+    #refineDropdown {
+      order: 2 !important;
+    }
+    #sortDropdown {
+      order: 3 !important;
+    }
+    .mobile-clear-btn {
+      order: 4 !important;
     }
 
     /* Hide standalone filters on mobile since they are now in the Advanced Filter bottom sheet */
@@ -84,32 +112,84 @@
       display: none !important;
     }
 
+    .mobile-clear-btn {
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      width: 38px !important;
+      height: 38px !important;
+      min-height: 38px !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 6px !important;
+      background: var(--bg-offset) !important;
+      color: var(--text-main) !important;
+      text-decoration: none !important;
+      cursor: pointer !important;
+      transition: all 0.3s ease !important;
+    }
+    .mobile-clear-btn:hover {
+      background: var(--border) !important;
+      color: var(--error) !important;
+    }
+
     .custom-dropdown {
       width: 100% !important;
       flex-shrink: 0;
+      min-width: 0 !important;
       position: relative !important;
       z-index: 9999 !important; /* Ensure trigger sits above overlapping layers */
     }
 
     .dropdown-trigger {
+      box-sizing: border-box !important;
       width: 100% !important;
       display: flex !important;
       justify-content: center !important;
       align-items: center !important;
-      min-height: 30px !important;
+      gap: 6px !important;
+      height: 38px !important;
+      min-height: 38px !important;
       font-size: 0.78rem !important;
       font-weight: 600 !important;
       border-radius: 6px !important; /* Sleek elegant shape */
       background: var(--bg-main) !important;
       border: 1px solid var(--border) !important;
-      padding: 4px 12px !important;
+      padding: 0 8px !important;
       position: relative !important;
       z-index: 10000 !important; /* Click layer absolute top */
+      white-space: nowrap !important;
+      overflow: hidden !important;
     }
     
     .dropdown-trigger svg {
-      width: 12px !important;
-      height: 12px !important;
+      width: 14px !important;
+      height: 14px !important;
+      flex-shrink: 0 !important;
+    }
+
+    .desktop-sort-label {
+      display: none !important;
+    }
+    
+    .mobile-sort-label {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      overflow: hidden !important;
+    }
+
+    .mobile-sort-text {
+      display: inline-block !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      min-width: 0 !important;
+    }
+    
+    .sort-chevron {
+      display: none !important;
     }
     
     .products-section {
@@ -122,7 +202,7 @@
       z-index: 9990 !important; /* Ensure sticky bar sits above main page contents */
     }
     
-    .custom-dropdown span {
+    .custom-dropdown > span {
       display: none !important; /* Hide uppercase label above on mobile */
     }
 
@@ -196,7 +276,8 @@
       overflow-y: auto !important;
     }
 
-    #filterDropdown .dropdown-menu {
+    #filterDropdown .dropdown-menu,
+    #refineDropdown .dropdown-menu {
       width: 260px !important;
       min-width: unset !important;
     }
@@ -237,6 +318,14 @@
       padding: 6px 15px !important;
       font-size: 0.78rem !important;
     }
+  }
+
+  /* rating radio button selected visual state */
+  .rating-radio-label:has(input[type="radio"]:checked) {
+    border-color: var(--accent) !important;
+    background: var(--accent-light, rgba(251, 191, 36, 0.05)) !important;
+    color: var(--accent) !important;
+    font-weight: 700 !important;
   }
 
   /* Desktop-only overrides: hide Advanced Filter dropdown button and push Sort dropdown to the right edge */
@@ -286,27 +375,26 @@
       </div>
 
       <!-- Subcategory (Types) Custom Dropdown -->
-      {% if available_subcategories %}
       <div class="custom-dropdown" id="subcategoryDropdown">
         <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Collections</span>
         <div class="dropdown-trigger" style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
           {% if current_subcategory %}
-            {% for sub in available_subcategories %}{% if sub.slug == current_subcategory %}{{ sub.name }}{% endif %}{% endfor %}
+            {% for sub in all_subcategories %}{% if sub.slug == current_subcategory %}{{ sub.name }}{% endif %}{% endfor %}
           {% else %}
             All Collections
           {% endif %}
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
         </div>
         <div class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; background: var(--bg-main); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 10px 0; min-width: 200px; margin-top: 10px; border-radius: 4px; z-index: 101;">
-          <a href="?category={{ current_category|default:'' }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if not current_subcategory %}font-weight: 700; background: var(--bg-offset);{% endif %}">All Types</a>
-          {% for sub in available_subcategories %}
-            <a href="?category={{ current_category|default:'' }}&subcategory={{ sub.slug }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_subcategory == sub.slug %}font-weight: 700; background: var(--bg-offset);{% endif %}">{{ sub.name }}</a>
+          <a href="?category={{ current_category|default:'' }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if not current_subcategory %}font-weight: 700; background: var(--bg-offset);{% endif %}">All Collections</a>
+          {% for sub in all_subcategories %}
+            <a href="?category={{ sub.category.slug }}&subcategory={{ sub.slug }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" data-category="{{ sub.category.slug }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_subcategory == sub.slug %}font-weight: 700; background: var(--bg-offset);{% endif %}">{{ sub.name }}</a>
           {% endfor %}
         </div>
       </div>
-      {% endif %}
 
       <!-- Section Custom Dropdown -->
+      {% if not current_category and not current_subcategory %}
       <div class="custom-dropdown" id="sectionDropdown">
         <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Types</span>
         <div class="dropdown-trigger" style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
@@ -316,76 +404,29 @@
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
         </div>
         <div class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; background: var(--bg-main); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 10px 0; min-width: 200px; margin-top: 10px; border-radius: 4px; z-index: 101;">
-          <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if not current_section %}font-weight: 700; background: var(--bg-offset);{% endif %}">All Collections</a>
+          <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if not current_section %}font-weight: 700; background: var(--bg-offset);{% endif %}">All Types</a>
           <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&section=tops&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_section == 'tops' %}font-weight: 700; background: var(--bg-offset);{% endif %}">Tops</a>
           <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&section=bottoms&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_section == 'bottoms' %}font-weight: 700; background: var(--bg-offset);{% endif %}">Bottom</a>
         </div>
       </div>
+      {% endif %}
 
-      <!-- Trending chip toggle -->
-      <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort={{ current_sort|default:'' }}&trending={% if current_trending %}false{% else %}true{% endif %}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" 
-         class="filter-chip-link {% if current_trending %}active{% endif %}">
-        {% if current_trending %}★ Trending{% else %}Trending{% endif %}
-      </a>
-
-      <!-- Top Rated chip toggle -->
-      <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={% if current_top_rated %}false{% else %}true{% endif %}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" 
-         class="filter-chip-link {% if current_top_rated %}active{% endif %}">
-        {% if current_top_rated %}★ Top Rated{% else %}Top Rated{% endif %}
-      </a>
-
-
-
-      <!-- Advanced Filter Dropdown (Filters Dashboard) -->
-      <div class="custom-dropdown" id="filterDropdown">
-        <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Filters</span>
+      <!-- Refine Dropdown (Price Range, Minimum Rating) -->
+      <div class="custom-dropdown" id="refineDropdown">
+        <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Refine</span>
         <div class="dropdown-trigger" style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 2px;"><path d="M22 3H2l8 9v6l4 2v-8L22 3z"/></svg>
-          Filters
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 2px;"><path d="M4 21v-7m0-4V3m8 18v-9m0-4V3m8 18v-5m0-4V3M1 14h6m2-6h6m2 8h6"/></svg>
+          Refine
         </div>
         <div class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; background: var(--bg-main); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 25px; min-width: 280px; margin-top: 10px; border-radius: 4px; z-index: 101;">
-          <!-- Mobile sheet header -->
-          <div class="mobile-sheet-header" style="display: none; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
-            <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0; color: var(--text-main);">Filters</h3>
-            <button type="button" class="close-sheet-btn" style="background: transparent; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;">&times;</button>
-          </div>
           <form method="GET" action="{% url 'product_list' %}">
+            <input type="hidden" name="category" value="{{ current_category|default:'' }}">
+            <input type="hidden" name="subcategory" value="{{ current_subcategory|default:'' }}">
+            <input type="hidden" name="section" value="{{ current_section|default:'' }}">
+            <input type="hidden" name="trending" value="{% if current_trending %}true{% else %}false{% endif %}">
+            <input type="hidden" name="top_rated" value="{% if current_top_rated %}true{% else %}false{% endif %}">
             <input type="hidden" name="sort" value="{{ current_sort|default:'' }}">
-            
-            <!-- Category Selector -->
-            <div style="margin-bottom: 20px;">
-              <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Category</label>
-              <select name="category" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); background: var(--bg-offset); color: var(--text-main); font-size: 0.9rem; border-radius: 4px; cursor: pointer;">
-                <option value="">All Categories</option>
-                {% for cat in all_categories %}
-                  <option value="{{ cat.slug }}" {% if current_category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
-                {% endfor %}
-              </select>
-            </div>
 
-            <!-- Collections Selector -->
-            {% if available_subcategories %}
-            <div style="margin-bottom: 20px;">
-              <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Collections</label>
-              <select name="subcategory" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); background: var(--bg-offset); color: var(--text-main); font-size: 0.9rem; border-radius: 4px; cursor: pointer;">
-                <option value="">All Collections</option>
-                {% for sub in available_subcategories %}
-                  <option value="{{ sub.slug }}" {% if current_subcategory == sub.slug %}selected{% endif %}>{{ sub.name }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            {% endif %}
-
-            <!-- Types Selector -->
-            <div style="margin-bottom: 20px;">
-              <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Types</label>
-              <select name="section" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); background: var(--bg-offset); color: var(--text-main); font-size: 0.9rem; border-radius: 4px; cursor: pointer;">
-                <option value="">All Types</option>
-                <option value="tops" {% if current_section == 'tops' %}selected{% endif %}>Tops</option>
-                <option value="bottoms" {% if current_section == 'bottoms' %}selected{% endif %}>Bottom</option>
-              </select>
-            </div>
-            
             <!-- Price Range -->
             <div style="margin-bottom: 20px;">
               <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Price Range</label>
@@ -401,12 +442,88 @@
               <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Minimum Rating</label>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 {% for r in "43" %}
-                <label style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 8px; border: 1px solid {% if current_min_rating == r %}var(--accent){% else %}var(--border){% endif %}; border-radius: 4px; background: {% if current_min_rating == r %}var(--accent-light){% else %}transparent{% endif %}; color: {% if current_min_rating == r %}#111{% else %}var(--text-main){% endif %};">
+                <label class="rating-radio-label" style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 8px; border: 1px solid {% if current_min_rating == r %}var(--accent){% else %}var(--border){% endif %}; border-radius: 4px; background: {% if current_min_rating == r %}var(--accent-light){% else %}transparent{% endif %}; color: var(--text-main);">
                   <input type="radio" name="min_rating" value="{{ r }}" {% if current_min_rating == r %}checked{% endif %} style="display: none;">
                   {{ r }}★ & Up
                 </label>
                 {% endfor %}
               </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+              <button type="submit" style="flex: 2; background: var(--primary); color: #fff; border: none; padding: 12px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 4px; cursor: pointer;">Apply</button>
+              <a href="?" style="flex: 1; border: 1px solid var(--border); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; text-transform: uppercase; font-weight: 600; border-radius: 4px; text-decoration: none;">Reset</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Trending chip toggle -->
+      <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort={{ current_sort|default:'' }}&trending={% if current_trending %}false{% else %}true{% endif %}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" 
+         class="filter-chip-link {% if current_trending %}active{% endif %}">
+        {% if current_trending %}★ Trending{% else %}Trending{% endif %}
+      </a>
+
+      <!-- Top Rated chip toggle -->
+      <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={% if current_top_rated %}false{% else %}true{% endif %}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" 
+         class="filter-chip-link {% if current_top_rated %}active{% endif %}">
+        {% if current_top_rated %}★ Top Rated{% else %}Top Rated{% endif %}
+      </a>
+
+      <!-- Clear All Button -->
+      {% if current_category or current_subcategory or current_section or current_trending or current_top_rated or current_min_price or current_max_price or current_min_rating %}
+        <a href="{% url 'product_list' %}" class="clear-all-chip">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          Clear All
+        </a>
+      {% endif %}
+
+
+
+      <!-- Advanced Filter Dropdown (Filters Dashboard) -->
+      <div class="custom-dropdown" id="filterDropdown">
+        <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Filters</span>
+        <div class="dropdown-trigger" style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 2px;"><path d="M22 3H2l8 9v6l4 2v-8L22 3z"/></svg>
+          Filters
+        </div>
+        <div class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; background: var(--bg-main); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 25px; min-width: 280px; margin-top: 10px; border-radius: 4px; z-index: 101;">
+          <form method="GET" action="{% url 'product_list' %}">
+            <input type="hidden" name="min_price" value="{{ current_min_price|default:'' }}">
+            <input type="hidden" name="max_price" value="{{ current_max_price|default:'' }}">
+            <input type="hidden" name="min_rating" value="{{ current_min_rating|default:'' }}">
+            <input type="hidden" name="sort" value="{{ current_sort|default:'' }}">
+            
+            <!-- Category Selector -->
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Category</label>
+              <select name="category" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); background: var(--bg-offset); color: var(--text-main); font-size: 0.9rem; border-radius: 4px; cursor: pointer;">
+                <option value="">All Categories</option>
+                {% for cat in all_categories %}
+                  <option value="{{ cat.slug }}" {% if current_category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Collections Selector -->
+            <div style="margin-bottom: 20px;" id="collectionsSelectGroup">
+              <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Collections</label>
+              <select name="subcategory" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); background: var(--bg-offset); color: var(--text-main); font-size: 0.9rem; border-radius: 4px; cursor: pointer;">
+                <option value="">All Collections</option>
+                {% for sub in all_subcategories %}
+                  <option value="{{ sub.slug }}" data-category="{{ sub.category.slug }}" {% if current_subcategory == sub.slug %}selected{% endif %}>{{ sub.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Types Selector -->
+            <div style="margin-bottom: 20px;" id="mobileTypesSelectGroup">
+              <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Types</label>
+              <select name="section" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); background: var(--bg-offset); color: var(--text-main); font-size: 0.9rem; border-radius: 4px; cursor: pointer;">
+                <option value="">All Types</option>
+                <option value="tops" {% if current_section == 'tops' %}selected{% endif %}>Tops</option>
+                <option value="bottoms" {% if current_section == 'bottoms' %}selected{% endif %}>Bottom</option>
+              </select>
             </div>
 
             <!-- Status Checkboxes -->
@@ -435,20 +552,27 @@
       <!-- Sort Custom Dropdown -->
       <div class="custom-dropdown" id="sortDropdown" style="position: relative;">
         <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Sort By</span>
-        <div class="dropdown-trigger" style="cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
-          {% if current_sort == 'price_low' %}Price: Low to High
-          {% elif current_sort == 'price_high' %}Price: High to Low
-          {% elif current_sort == 'rating' %}Top Rated
-          {% elif current_sort == 'high_discount' %}High Discount
-          {% else %}Newest First{% endif %}
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+        <div class="dropdown-trigger" style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
+          <span class="desktop-sort-label">
+            {% if current_sort == 'price_low' %}Price: Low to High
+            {% elif current_sort == 'price_high' %}Price: High to Low
+            {% elif current_sort == 'rating' %}Top Rated
+            {% elif current_sort == 'high_discount' %}High Discount
+            {% else %}Newest First{% endif %}
+          </span>
+          <span class="mobile-sort-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 4 3-3 3 3M18 1v18M8 20l-3 3-3-3M5 23V5"/></svg>
+            <span class="mobile-sort-text">
+              {% if current_sort == 'price_low' %}Price: Low to High
+              {% elif current_sort == 'price_high' %}Price: High to Low
+              {% elif current_sort == 'rating' %}Top Rated
+              {% elif current_sort == 'high_discount' %}High Discount
+              {% else %}Newest First{% endif %}
+            </span>
+          </span>
+          <svg class="sort-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
         </div>
         <div class="dropdown-menu" style="display: none; position: absolute; top: 100%; right: 0; background: var(--bg-main); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 10px 0; min-width: 180px; margin-top: 10px; border-radius: 4px; text-align: left; z-index: 101;">
-          <!-- Mobile sheet header -->
-          <div class="mobile-sheet-header" style="display: none; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
-            <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0; color: var(--text-main);">Sort By</h3>
-            <button type="button" class="close-sheet-btn" style="background: transparent; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;">&times;</button>
-          </div>
           <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=newest&trending={% if current_trending %}true{% else %}false{% endif %}&top_rated={% if current_top_rated %}true{% else %}false{% endif %}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'newest' or not current_sort %}font-weight: 700; background: var(--bg-offset);{% endif %}">Newest First</a>
           <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=price_low&trending={% if current_trending %}true{% else %}false{% endif %}&top_rated={% if current_top_rated %}true{% else %}false{% endif %}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'price_low' %}font-weight: 700; background: var(--bg-offset);{% endif %}">Price: Low to High</a>
           <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=price_high&trending={% if current_trending %}true{% else %}false{% endif %}&top_rated={% if current_top_rated %}true{% else %}false{% endif %}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'price_high' %}font-weight: 700; background: var(--bg-offset);{% endif %}">Price: High to Low</a>
@@ -457,11 +581,10 @@
         </div>
       </div>
 
-      <!-- Clear All Button -->
+      <!-- Clear All Button for Mobile -->
       {% if current_category or current_subcategory or current_section or current_trending or current_top_rated or current_min_price or current_max_price or current_min_rating %}
-        <a href="{% url 'product_list' %}" class="clear-all-chip">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          Clear All
+        <a href="{% url 'product_list' %}" class="mobile-clear-btn" title="Clear Filters">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </a>
       {% endif %}
 
@@ -573,4 +696,92 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const categorySelect = document.querySelector('#filterDropdown select[name="category"]');
+  const subcategorySelect = document.querySelector('#filterDropdown select[name="subcategory"]');
+  
+  if (categorySelect && subcategorySelect) {
+    const subcategoryOptions = Array.from(subcategorySelect.options);
+    const typesSelectGroup = document.querySelector('#mobileTypesSelectGroup');
+    
+    function updateTypesVisibility() {
+      if (typesSelectGroup) {
+        if (categorySelect.value || subcategorySelect.value) {
+          typesSelectGroup.style.display = 'none';
+          const selectElement = typesSelectGroup.querySelector('select');
+          if (selectElement) {
+            selectElement.value = '';
+          }
+        } else {
+          typesSelectGroup.style.display = 'block';
+        }
+      }
+    }
+    
+    function filterSubcategories() {
+      const selectedCategory = categorySelect.value;
+      
+      // Cache currently selected subcategory slug
+      const currentSelectedVal = subcategorySelect.value;
+      let selectedOptionStillValid = false;
+      
+      // Clear all options in dropdown
+      subcategorySelect.innerHTML = '';
+      
+      subcategoryOptions.forEach(option => {
+        const categorySlug = option.getAttribute('data-category');
+        
+        // Show option if it is the "All Collections" option, 
+        // or if no category is selected,
+        // or if it matches the selected category slug.
+        if (!option.value || !selectedCategory || categorySlug === selectedCategory) {
+          subcategorySelect.appendChild(option);
+          if (option.value === currentSelectedVal) {
+            selectedOptionStillValid = true;
+          }
+        }
+      });
+      
+      // Restore previous subcategory selection if it is still valid, else reset to "All Collections"
+      if (selectedOptionStillValid) {
+        subcategorySelect.value = currentSelectedVal;
+      } else {
+        subcategorySelect.value = '';
+      }
+      
+      // Update types visibility since category/subcategory values may have changed
+      updateTypesVisibility();
+    }
+    
+    categorySelect.addEventListener('change', filterSubcategories);
+    subcategorySelect.addEventListener('change', updateTypesVisibility);
+    
+    // Run initial filter on load
+    filterSubcategories();
+  }
+
+  // Desktop Category & Collections dynamic filtering
+  const desktopSubcategoryDropdown = document.querySelector('#subcategoryDropdown');
+  if (desktopSubcategoryDropdown) {
+    const activeCategory = "{{ current_category|default:'' }}";
+    const subcategoryLinks = Array.from(desktopSubcategoryDropdown.querySelectorAll('.dropdown-menu a[data-category]'));
+    
+    if (activeCategory) {
+      subcategoryLinks.forEach(link => {
+        const categorySlug = link.getAttribute('data-category');
+        if (categorySlug !== activeCategory) {
+          link.style.display = 'none';
+        } else {
+          link.style.display = 'block';
+        }
+      });
+    } else {
+      subcategoryLinks.forEach(link => {
+        link.style.display = 'block';
+      });
+    }
+  }
+});
+</script>
 {% endblock %}
