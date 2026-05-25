@@ -5,7 +5,12 @@
 
 {% block extra_css %}
 <style>
-  /* ===== Profile Page Mobile Responsive ===== */
+  /* ===================================================
+     Profile Page — Full Mobile Responsive Stylesheet
+     Breakpoints: 1024px (tablet) | 768px (mobile) | 480px (small mobile)
+  =================================================== */
+
+  /* ── Base / Desktop ── */
   .profile-page-wrapper {
     background: var(--bg-main);
     min-height: 100vh;
@@ -20,35 +25,349 @@
     align-items: start;
   }
 
+  /* ── Profile card panels ── */
+  .profile-card {
+    background: var(--bg-offset);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 35px;
+    box-shadow: var(--shadow);
+  }
+
+  /* ── Breadcrumbs ── */
+  .profile-breadcrumb {
+    margin-bottom: 2.5rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── Cart item row ── */
+  .cart-item-row {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    padding: 15px;
+    background: var(--bg-main);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    position: relative;
+  }
+
+  /* ── Order history row ── */
+  .order-history-row {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  /* ── Address grid ── */
+  .address-2col-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+
+  /* ================================================
+     TABLET  (≤ 1024px)
+  ================================================ */
   @media (max-width: 1024px) {
     .profile-main-grid {
       grid-template-columns: 1fr 1.2fr;
       gap: 24px;
     }
+    .profile-page-wrapper {
+      padding: 3rem 0;
+    }
   }
 
+  /* ================================================
+     MOBILE  (≤ 768px)
+  ================================================ */
   @media (max-width: 768px) {
+
+    /* Wrapper */
     .profile-page-wrapper {
       padding: 2rem 0;
       margin-top: 64px;
     }
+
+    /* Stack grid: left column above right column */
     .profile-main-grid {
       grid-template-columns: 1fr;
-      gap: 20px;
+      gap: 18px;
+    }
+
+    /* Breadcrumb smaller on mobile */
+    .profile-breadcrumb {
+      margin-bottom: 1.5rem;
+      font-size: 0.72rem;
+    }
+
+    /* ── Profile Picture Card ── */
+    /* Reduce card padding */
+    .profile-page-wrapper [style*="padding: 40px 30px"] {
+      padding: 24px 20px !important;
+    }
+
+    /* ── All section cards ── */
+    .profile-page-wrapper [style*="padding: 35px"] {
+      padding: 20px 16px !important;
+    }
+    .profile-page-wrapper [style*="padding: 30px"] {
+      padding: 18px 16px !important;
+    }
+
+    /* Section headings in cards */
+    .profile-page-wrapper [style*="font-size: 1.4rem"] {
+      font-size: 1.15rem !important;
+      margin-bottom: 16px !important;
+    }
+    .profile-page-wrapper [style*="font-size: 1.3rem"] {
+      font-size: 1.1rem !important;
+      margin-bottom: 14px !important;
+    }
+
+    /* Profile name h2 */
+    .profile-page-wrapper [style*="font-size: 1.6rem"] {
+      font-size: 1.25rem !important;
+      margin-bottom: 4px !important;
+    }
+
+    /* ── Cart item rows ── */
+    .cart-item-row,
+    .profile-page-wrapper [style*="display: flex; gap: 15px; align-items: center; padding: 15px; background: var(--bg-main); border:"] {
+      gap: 10px !important;
+      padding: 12px !important;
+    }
+
+    /* Cart item thumbnail */
+    .profile-page-wrapper [style*="width: 55px; height: 75px"] {
+      width: 46px !important;
+      height: 62px !important;
+    }
+
+    /* Cart item name (prevent overflow) */
+    .profile-page-wrapper .cart-item-row h4,
+    .profile-page-wrapper [style*="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"] {
+      font-size: 0.85rem !important;
+    }
+
+    /* Cart subtotal row */
+    .profile-page-wrapper [style*="display: flex; align-items: center; justify-content: space-between; border-top"] {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 14px !important;
+    }
+    .profile-page-wrapper [style*="display: flex; align-items: center; justify-content: space-between; border-top"] a {
+      width: 100% !important;
+      text-align: center !important;
+    }
+
+    /* ── Wishlist grid: 2 columns on mobile ── */
+    .profile-page-wrapper [style*="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr))"] {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 10px !important;
+    }
+    /* Wishlist item image height */
+    .profile-page-wrapper [style*="height: 140px; overflow: hidden"] {
+      height: 110px !important;
+    }
+
+    /* ── Order history row ── */
+    .order-history-row,
+    .profile-page-wrapper [style*="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px"] {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 10px !important;
+    }
+
+    /* Active order header row (ID vs Date) */
+    .profile-page-wrapper [style*="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; border-bottom"] {
+      gap: 8px !important;
+    }
+
+    /* Active order status + payment badges row */
+    .profile-page-wrapper [style*="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 15px; flex-wrap: wrap"] {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 8px !important;
+    }
+
+    /* ── Address grid: 1 column on mobile ── */
+    .address-2col-grid {
+      grid-template-columns: 1fr !important;
+    }
+
+    /* ── Cart max-height: shrink scroll region ── */
+    .profile-page-wrapper [style*="max-height: 380px"] {
+      max-height: 260px !important;
+    }
+
+    /* Logout button */
+    .profile-page-wrapper [style*="margin-top: 25px; border-top"] {
+      margin-top: 18px !important;
+      padding-top: 14px !important;
     }
   }
 
+  /* ================================================
+     SMALL MOBILE  (≤ 480px)
+  ================================================ */
   @media (max-width: 480px) {
+
     .profile-page-wrapper {
       padding: 1.2rem 0;
       margin-top: 58px;
     }
+
+    /* Even tighter card padding */
+    .profile-page-wrapper [style*="padding: 40px 30px"],
+    .profile-page-wrapper [style*="padding: 24px 20px"] {
+      padding: 18px 14px !important;
+    }
+    .profile-page-wrapper [style*="padding: 35px"],
+    .profile-page-wrapper [style*="padding: 20px 16px"] {
+      padding: 16px 12px !important;
+    }
+    .profile-page-wrapper [style*="padding: 30px"],
+    .profile-page-wrapper [style*="padding: 18px 16px"] {
+      padding: 14px 12px !important;
+    }
+
+    /* Avatar size */
+    .profile-page-wrapper [style*="width: 130px; height: 130px"] {
+      width: 100px !important;
+      height: 100px !important;
+    }
+
+    /* Profile name */
+    .profile-page-wrapper [style*="font-size: 1.6rem"],
+    .profile-page-wrapper [style*="font-size: 1.25rem"] {
+      font-size: 1.1rem !important;
+    }
+
+    /* Section headings */
+    .profile-page-wrapper [style*="font-size: 1.4rem"],
+    .profile-page-wrapper [style*="font-size: 1.15rem"] {
+      font-size: 1rem !important;
+    }
+
+    /* Wishlist: 2 columns but smaller */
+    .profile-page-wrapper [style*="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr))"] {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 8px !important;
+    }
+    .profile-page-wrapper [style*="height: 140px; overflow: hidden"],
+    .profile-page-wrapper [style*="height: 110px !important"] {
+      height: 90px !important;
+    }
+
+    /* Cart thumbnail */
+    .profile-page-wrapper [style*="width: 55px; height: 75px"],
+    .profile-page-wrapper [style*="width: 46px; height: 62px"] {
+      width: 40px !important;
+      height: 52px !important;
+    }
+
+    /* Cart item description font */
+    .profile-page-wrapper [style*="font-size: 0.75rem; color: var(--text-muted); margin: 0 0 4px 0"] {
+      font-size: 0.68rem !important;
+    }
+
+    /* Order ID mono font */
+    .profile-page-wrapper [style*="font-family: var(--font-mono); font-size: 0.85rem"] {
+      font-size: 0.78rem !important;
+    }
+
+    /* Remove outer horizontal scroll from message alerts on very small screens */
+    #profileMessagesContainer {
+      margin-bottom: 1.2rem;
+    }
+    .profile-message-alert {
+      padding: 12px 16px !important;
+      font-size: 0.85rem !important;
+    }
   }
 
-  /* Address grid fix */
+  /* ================================================
+     Profile Section Navigation Bar
+  ================================================ */
+  .profile-section-nav {
+    position: sticky;
+    top: 80px;
+    z-index: 50;
+    background: var(--bg-overlay);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 6px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    box-shadow: var(--shadow);
+  }
+  .profile-section-nav::-webkit-scrollbar { display: none; }
+
+  .profile-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
+    font-family: var(--font-sans);
+  }
+  .profile-nav-btn svg { flex-shrink: 0; }
+  .profile-nav-btn:hover {
+    background: var(--bg-offset);
+    color: var(--text-main);
+  }
+  .profile-nav-btn.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  @media (max-width: 768px) {
+    .profile-section-nav {
+      top: 64px;
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 1.2rem;
+      gap: 2px;
+    }
+    .profile-nav-btn {
+      padding: 7px 10px;
+      font-size: 0.65rem;
+      gap: 4px;
+    }
+    .profile-nav-btn svg { width: 13px; height: 13px; }
+  }
   @media (max-width: 480px) {
-    .address-2col-grid {
-      grid-template-columns: 1fr !important;
+    .profile-section-nav { top: 58px; }
+    .profile-nav-btn {
+      padding: 6px 8px;
+      font-size: 0.6rem;
     }
   }
 </style>
@@ -99,11 +418,43 @@
     {% endif %}
 
     <!-- Breadcrumbs -->
-    <div style="margin-bottom: 2.5rem; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;">
+    <div style="margin-bottom: 1.5rem; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;">
       <a href="{% url 'home' %}" style="color: var(--text-muted); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'">Home</a>
       <span style="color: var(--border); margin: 0 10px;">/</span>
       <span style="color: var(--text-main); font-weight: 600;">My Account Profile</span>
     </div>
+
+    <!-- ── Profile Section Navigation ── -->
+    <nav class="profile-section-nav" id="profileSectionNav" aria-label="Profile sections">
+      <button class="profile-nav-btn active" data-target="section-profile" onclick="profileNavScroll('section-profile', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </button>
+      <button class="profile-nav-btn" data-target="section-personal" onclick="profileNavScroll('section-personal', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Personal
+      </button>
+      <button class="profile-nav-btn" data-target="section-address" onclick="profileNavScroll('section-address', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Address
+      </button>
+      <button class="profile-nav-btn" data-target="section-bag" onclick="profileNavScroll('section-bag', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Bag
+      </button>
+      <button class="profile-nav-btn" data-target="section-wishlist" onclick="profileNavScroll('section-wishlist', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Wishlist
+      </button>
+      <button class="profile-nav-btn" data-target="section-orders" onclick="profileNavScroll('section-orders', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Orders
+      </button>
+      <button class="profile-nav-btn" data-target="section-history" onclick="profileNavScroll('section-history', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        History
+      </button>
+    </nav>
 
     <!-- Main Grid Dashboard Layout -->
     <div class="profile-main-grid">
@@ -152,6 +503,7 @@
         </div>
 
         <!-- Personal Details Form -->
+        <span id="section-personal" style="scroll-margin-top: 140px;"></span>
         <div style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; padding: 30px; box-shadow: var(--shadow);">
           <h3 style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"/></svg>
@@ -194,6 +546,7 @@
         </div>
 
         <!-- Default Shipping Address Form -->
+        <span id="section-address" style="scroll-margin-top: 140px;"></span>
         <div style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; padding: 30px; box-shadow: var(--shadow);">
           <h3 style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
@@ -264,6 +617,7 @@
       <div style="display: grid; gap: 30px;">
         
         <!-- Active Cart/Bag Card -->
+        <span id="section-bag" style="scroll-margin-top: 140px;"></span>
         <div style="background: var(--bg-offset); border: 1px solid var(--border); border-radius: 12px; padding: 35px; box-shadow: var(--shadow);">
           <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--text-main); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;">
             <span style="display: flex; align-items: center; gap: 10px;">
@@ -336,6 +690,7 @@
         </div>
 
         <!-- Wishlist Saved Pieces Card -->
+        <span id="section-wishlist" style="scroll-margin-top: 140px;"></span>
         <div style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; padding: 35px; box-shadow: var(--shadow);">
           <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--text-main); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;">
             <span style="display: flex; align-items: center; gap: 10px;">
@@ -381,6 +736,7 @@
         </div>
 
         <!-- Active Order Tracking -->
+        <span id="section-orders" style="scroll-margin-top: 140px;"></span>
         <div style="background: var(--bg-offset); border: 1px solid var(--border); border-radius: 12px; padding: 35px; box-shadow: var(--shadow);">
           <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--text-main); margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
@@ -444,6 +800,7 @@
         </div>
 
         <!-- Order History Log -->
+        <span id="section-history" style="scroll-margin-top: 140px;"></span>
         <div style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; padding: 35px; box-shadow: var(--shadow);">
           <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--text-main); margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -487,4 +844,79 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // ── Profile Nav: Smooth scroll to section ──
+  function profileNavScroll(sectionId, btn) {
+    const target = document.getElementById(sectionId);
+    if (!target) return;
+    // Set active immediately on click
+    document.querySelectorAll('.profile-nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // Scroll the nav so active btn is visible
+    btn.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    // Smooth scroll to section with offset
+    const navHeight = document.getElementById('profileSectionNav').offsetHeight;
+    const stickyOffset = parseInt(getComputedStyle(document.getElementById('profileSectionNav')).top) || 80;
+    const targetTop = target.getBoundingClientRect().top + window.pageYOffset - stickyOffset - navHeight - 12;
+    window.scrollTo({ top: targetTop, behavior: 'smooth' });
+  }
+
+  // ── Scroll Spy: highlight nav tab as user scrolls ──
+  document.addEventListener('DOMContentLoaded', function () {
+    const sectionIds = [
+      'section-profile',
+      'section-personal',
+      'section-address',
+      'section-bag',
+      'section-wishlist',
+      'section-orders',
+      'section-history',
+    ];
+
+    const nav = document.getElementById('profileSectionNav');
+    if (!nav) return;
+
+    const navHeight = nav.offsetHeight;
+    const stickyTop = parseInt(getComputedStyle(nav).top) || 80;
+    const scrollOffset = stickyTop + navHeight + 20;
+
+    // IntersectionObserver for scroll-spy
+    const observerOptions = {
+      root: null,
+      rootMargin: `-${scrollOffset}px 0px -60% 0px`,
+      threshold: 0,
+    };
+
+    let lastActive = 'section-profile';
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          lastActive = entry.target.id;
+          updateActiveBtn(lastActive);
+        }
+      });
+    }, observerOptions);
+
+    sectionIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    function updateActiveBtn(activeId) {
+      document.querySelectorAll('.profile-nav-btn').forEach(btn => {
+        if (btn.dataset.target === activeId) {
+          btn.classList.add('active');
+          // Keep active btn in view in the horizontal scroll nav
+          btn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+  });
+</script>
 {% endblock %}

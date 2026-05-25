@@ -5,7 +5,7 @@
 
 {% block content %}
 <!-- Directory Header -->
-<div class="category-explorer-header" style="background: var(--bg-offset); padding: 120px 0 60px; text-align: center; border-bottom: 1px solid var(--border); margin-top: 80px;">
+<div class="category-explorer-header" style="background: var(--bg-offset); text-align: center; border-bottom: 1px solid var(--border);">
   <div class="container">
     <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.3em; color: var(--accent); margin-bottom: 20px; display: block; font-weight: 700;">Discover Our Collections</span>
     <h1 style="font-family: var(--font-serif); font-size: clamp(2.5rem, 5vw, 4rem); color: var(--text-main); margin-bottom: 20px;">Category <em>Directory</em></h1>
@@ -77,6 +77,12 @@
 </section>
 
 <style>
+  /* ===== Category Directory — Base Desktop ===== */
+  .category-explorer-header {
+    margin-top: 80px;
+    padding: 120px 0 60px;
+  }
+
   .directory-card:hover {
     transform: translateY(-10px);
     box-shadow: var(--shadow-lg);
@@ -98,6 +104,126 @@
     background: transparent !important;
     color: var(--accent) !important;
     text-decoration: underline !important;
+  }
+
+  /* ===== Tablet (max-width: 1024px) ===== */
+  @media (max-width: 1024px) {
+    .category-explorer-header {
+      padding: 100px 0 50px;
+    }
+    .directory-grid {
+      gap: 24px !important;
+    }
+    .directory-card-head {
+      padding: 22px !important;
+    }
+    .directory-card-body {
+      padding: 18px 22px 28px !important;
+    }
+  }
+
+  /* ===== Mobile (max-width: 768px) ===== */
+  @media (max-width: 768px) {
+    .category-explorer-header {
+      margin-top: 64px;
+      padding: 70px 0 36px;
+    }
+    .category-explorer-header h1 {
+      font-size: 2rem !important;
+      margin-bottom: 14px !important;
+    }
+    .category-explorer-header p {
+      font-size: 0.92rem;
+      padding: 0 8px;
+    }
+
+    /* Single-column grid on mobile */
+    .directory-grid {
+      grid-template-columns: 1fr !important;
+      gap: 20px !important;
+    }
+
+    /* Card head: keep row but reduce padding & icon size */
+    .directory-card-head {
+      padding: 18px 16px !important;
+      gap: 12px !important;
+    }
+    .directory-card-head h3 {
+      font-size: 1.25rem !important;
+      margin-bottom: 6px !important;
+    }
+    /* Category thumbnail icon */
+    .directory-card-head > div:last-child,
+    .directory-card-head > div[style*="80px"] {
+      width: 64px !important;
+      height: 64px !important;
+    }
+
+    /* Card body */
+    .directory-card-body {
+      padding: 14px 16px 22px !important;
+    }
+
+    /* Subcategory pills: make them scroll horizontally on mobile */
+    .directory-card-body > div:last-child {
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: nowrap !important;
+      overflow-x: auto !important;
+      gap: 10px !important;
+      padding-bottom: 6px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .directory-card-body > div:last-child::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Sub card pills: fixed width so they don't shrink */
+    .sub-dir-card {
+      flex-shrink: 0 !important;
+      min-width: 100px !important;
+      padding: 12px 8px !important;
+    }
+    .sub-dir-card img,
+    .sub-dir-card > div {
+      width: 44px !important;
+      height: 44px !important;
+    }
+    .sub-dir-card > span {
+      font-size: 0.78rem !important;
+    }
+
+    /* Disable hover transforms on touch screens */
+    .directory-card:hover {
+      transform: none;
+    }
+    .sub-dir-card:hover {
+      transform: none;
+    }
+  }
+
+  /* ===== Small Mobile (max-width: 480px) ===== */
+  @media (max-width: 480px) {
+    .category-explorer-header {
+      margin-top: 58px;
+      padding: 56px 0 28px;
+    }
+    .category-explorer-header h1 {
+      font-size: 1.7rem !important;
+    }
+    .directory-card-head {
+      padding: 14px 14px !important;
+    }
+    .directory-card-head h3 {
+      font-size: 1.1rem !important;
+    }
+    .directory-card-body {
+      padding: 12px 14px 18px !important;
+    }
+    .sub-dir-card {
+      min-width: 88px !important;
+    }
   }
 </style>
 {% endblock %}
