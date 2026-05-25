@@ -14,82 +14,231 @@
     color: #fff;
   }
 
-  @media (max-width: 768px) {
-    .product-list-hero {
-      padding: 4rem 0 2.5rem;
-      margin-top: 64px;
-    }
-    .product-list-hero h1 {
-      font-size: clamp(1.8rem, 8vw, 3rem) !important;
-    }
-    .product-list-hero p {
-      font-size: 0.9rem !important;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .product-list-hero {
-      padding: 3rem 0 2rem;
-      margin-top: 58px;
-    }
-    .product-list-hero h1 {
-      font-size: 1.6rem !important;
-    }
-    .product-list-hero p {
-      font-size: 0.85rem !important;
-    }
-  }
-
-  /* Filter Bar */
+  /* Filter Bar Flat Layout */
   .filter-bar-inner {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     padding: 1rem 30px;
-    gap: 16px;
-  }
-
-  .filter-group-inner {
-    display: flex;
-    gap: 2rem;
-    align-items: center;
+    gap: 1.5rem;
     flex-wrap: wrap;
   }
 
-  @media (max-width: 768px) {
-    .filter-bar-inner {
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 12px 16px;
-      gap: 12px;
-    }
-    .filter-group-inner {
-      gap: 12px;
-      width: 100%;
-    }
-    .filter-sort-wrapper {
-      width: 100%;
-    }
-    /* Make dropdowns touchable */
-    .custom-dropdown {
-      position: relative;
-    }
-    .dropdown-trigger {
-      padding: 6px 0;
-      min-height: 44px;
-      align-items: center;
-    }
+  .custom-dropdown {
+    position: relative;
   }
 
-  @media (max-width: 480px) {
-    .filter-bar-inner {
-      padding: 10px 12px;
+  .filter-chip-link {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    min-height: 44px;
+    transition: all 0.3s ease;
+  }
+  .filter-chip-link.active {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-light, rgba(251, 191, 36, 0.05));
+  }
+
+  .clear-all-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--bg-offset);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    font-weight: 600;
+    text-decoration: none;
+    min-height: 44px;
+    transition: all 0.3s ease;
+  }
+
+  @media (max-width: 768px) {
+    .product-list-hero {
+      display: none !important;
     }
-    .filter-group-inner {
-      gap: 8px;
+    
+    .filter-bar-inner {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important; /* 2 perfect equal columns */
+      padding: 6px 12px !important;
+      gap: 8px !important;
+      width: 100% !important;
+      overflow: visible !important;
+    }
+
+    /* Hide standalone filters on mobile since they are now in the Advanced Filter bottom sheet */
+    #categoryDropdown, #subcategoryDropdown, #sectionDropdown, .filter-chip-link, .clear-all-chip {
+      display: none !important;
+    }
+
+    .custom-dropdown {
+      width: 100% !important;
+      flex-shrink: 0;
+      position: relative !important;
+      z-index: 9999 !important; /* Ensure trigger sits above overlapping layers */
+    }
+
+    .dropdown-trigger {
+      width: 100% !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      min-height: 30px !important;
+      font-size: 0.78rem !important;
+      font-weight: 600 !important;
+      border-radius: 6px !important; /* Sleek elegant shape */
+      background: var(--bg-main) !important;
+      border: 1px solid var(--border) !important;
+      padding: 4px 12px !important;
+      position: relative !important;
+      z-index: 10000 !important; /* Click layer absolute top */
+    }
+    
+    .dropdown-trigger svg {
+      width: 12px !important;
+      height: 12px !important;
+    }
+    
+    .products-section {
+      padding-top: 1rem !important;
+    }
+    
+    .filter-bar {
+      position: sticky !important;
+      top: 60px !important;
+      z-index: 9990 !important; /* Ensure sticky bar sits above main page contents */
+    }
+    
+    .custom-dropdown span {
+      display: none !important; /* Hide uppercase label above on mobile */
+    }
+
+    /* Minimal Viewport Product List Responsive Layout (Image Left, Details Right) */
+    @media (max-width: 360px), (max-height: 498px) and (max-width: 480px) {
+      .products-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+      }
+      .product-card {
+        display: flex !important;
+        flex-direction: column !important;
+        border-bottom: 1px solid var(--border) !important;
+        padding-bottom: 16px !important;
+        margin-bottom: 8px !important;
+      }
+      .product-card-link {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        text-decoration: none !important;
+        width: 100% !important;
+      }
+      .product-img-wrap {
+        width: 90px !important;
+        aspect-ratio: 3 / 4 !important;
+        flex-shrink: 0 !important;
+        border-radius: 6px !important;
+        overflow: hidden !important;
+      }
+      .product-info {
+        flex: 1 !important;
+        padding: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        text-align: left !important;
+      }
+      .product-brand {
+        font-size: 0.7rem !important;
+      }
+      .product-name {
+        font-size: 0.85rem !important;
+        margin-top: 2px !important;
+        line-height: 1.2 !important;
+      }
+      .product-price {
+        font-size: 0.9rem !important;
+        margin-top: 4px !important;
+      }
+      .add-to-cart-link {
+        margin-top: 8px !important;
+        align-self: flex-start !important;
+        width: auto !important;
+        display: inline-block !important;
+        padding: 6px 16px !important;
+        font-size: 0.75rem !important;
+        border-radius: 4px !important;
+        text-align: center !important;
+      }
+    }
+
+    /* Premium Bottom Sheet Modal for mobile dropdown menus */
+    .dropdown-menu {
+      position: fixed !important;
+      top: auto !important;
+      bottom: -100% !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100% !important;
+      max-height: 85vh !important;
+      overflow-y: auto !important;
+      background: var(--bg-main) !important;
+      border: none !important;
+      border-top: 1px solid var(--border) !important;
+      border-radius: 20px 20px 0 0 !important;
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.3) !important;
+      padding: 24px 20px 40px !important;
+      margin: 0 !important;
+      z-index: 1000000 !important;
+      display: block !important;
+      visibility: hidden !important;
+      transition: bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s !important;
+    }
+
+    .dropdown-menu.show-sheet {
+      bottom: 0 !important;
+      visibility: visible !important;
+    }
+
+    .dropdown-menu a {
+      font-size: 0.95rem !important;
+      padding: 12px 20px !important;
+      border-bottom: 1px solid var(--border);
+    }
+    .dropdown-menu a:last-child {
+      border-bottom: none;
+    }
+
+    .mobile-sheet-header {
+      display: none;
+    }
+
+    /* Let's style the custom backdrop */
+    .mobile-filter-backdrop {
+      display: block;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .mobile-filter-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
     }
   }
-</style>
 {% endblock %}
 
 {% block content %}
@@ -106,7 +255,6 @@
 <section class="filter-bar" style="background: var(--bg-main); border-bottom: 1px solid var(--border); position: sticky; top: 80px; z-index: 100;">
   <div class="container">
     <div class="filter-bar-inner">
-      <div class="filter-group filter-group-inner">
       <!-- Category Custom Dropdown -->
       <div class="custom-dropdown" id="categoryDropdown">
         <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Category</span>
@@ -146,6 +294,7 @@
         </div>
       </div>
       {% endif %}
+
       <!-- Section Custom Dropdown -->
       <div class="custom-dropdown" id="sectionDropdown">
         <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Types</span>
@@ -162,36 +311,72 @@
         </div>
       </div>
 
-      <div style="display: flex; flex-direction: column;">
-        <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Status</span>
-        <div style="display: flex; gap: 1.5rem; align-items: center;">
-          <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort={{ current_sort|default:'' }}&trending={% if current_trending %}false{% else %}true{% endif %}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" 
-             style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: {% if current_trending %}var(--accent){% else %}var(--text-main){% endif %};">
-            {% if current_trending %}★ Trending{% else %}Trending{% endif %}
-          </a>
-          <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={% if current_top_rated %}false{% else %}true{% endif %}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" 
-             style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: {% if current_top_rated %}var(--accent){% else %}var(--text-main){% endif %};">
-            {% if current_top_rated %}★ Top Rated{% else %}Top Rated{% endif %}
-          </a>
-        </div>
-      </div>
+      <!-- Trending chip toggle -->
+      <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort={{ current_sort|default:'' }}&trending={% if current_trending %}false{% else %}true{% endif %}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" 
+         class="filter-chip-link {% if current_trending %}active{% endif %}">
+        {% if current_trending %}★ Trending{% else %}Trending{% endif %}
+      </a>
 
-      <!-- Advanced Filter Dropdown -->
+      <!-- Top Rated chip toggle -->
+      <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={% if current_top_rated %}false{% else %}true{% endif %}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" 
+         class="filter-chip-link {% if current_top_rated %}active{% endif %}">
+        {% if current_top_rated %}★ Top Rated{% else %}Top Rated{% endif %}
+      </a>
+
+      <!-- Mobile Backdrop for Bottom Sheets -->
+      <div class="mobile-filter-backdrop" id="mobileFilterBackdrop" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 999998; backdrop-filter: blur(3px); transition: opacity 0.3s ease;"></div>
+
+      <!-- Advanced Filter Dropdown (Filters Dashboard) -->
       <div class="custom-dropdown" id="filterDropdown">
-        <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Refine</span>
+        <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Filters</span>
         <div class="dropdown-trigger" style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
-          Price & Rating
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 2px;"><path d="M22 3H2l8 9v6l4 2v-8L22 3z"/></svg>
+          Filters
         </div>
         <div class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; background: var(--bg-main); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 25px; min-width: 280px; margin-top: 10px; border-radius: 4px; z-index: 101;">
+          <!-- Mobile sheet header -->
+          <div class="mobile-sheet-header" style="display: none; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0; color: var(--text-main);">Filters</h3>
+            <button type="button" class="close-sheet-btn" style="background: transparent; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;">&times;</button>
+          </div>
           <form method="GET" action="{% url 'product_list' %}">
-            <input type="hidden" name="category" value="{{ current_category|default:'' }}">
-            <input type="hidden" name="subcategory" value="{{ current_subcategory|default:'' }}">
-            <input type="hidden" name="section" value="{{ current_section|default:'' }}">
             <input type="hidden" name="sort" value="{{ current_sort|default:'' }}">
-            <input type="hidden" name="trending" value="{{ current_trending|lower }}">
-            <input type="hidden" name="top_rated" value="{{ current_top_rated|lower }}">
             
+            <!-- Category Selector -->
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Category</label>
+              <select name="category" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); background: var(--bg-offset); color: var(--text-main); font-size: 0.9rem; border-radius: 4px; cursor: pointer;">
+                <option value="">All Categories</option>
+                {% for cat in all_categories %}
+                  <option value="{{ cat.slug }}" {% if current_category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Collections Selector -->
+            {% if available_subcategories %}
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Collections</label>
+              <select name="subcategory" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); background: var(--bg-offset); color: var(--text-main); font-size: 0.9rem; border-radius: 4px; cursor: pointer;">
+                <option value="">All Collections</option>
+                {% for sub in available_subcategories %}
+                  <option value="{{ sub.slug }}" {% if current_subcategory == sub.slug %}selected{% endif %}>{{ sub.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            {% endif %}
+
+            <!-- Types Selector -->
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Types</label>
+              <select name="section" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); background: var(--bg-offset); color: var(--text-main); font-size: 0.9rem; border-radius: 4px; cursor: pointer;">
+                <option value="">All Types</option>
+                <option value="tops" {% if current_section == 'tops' %}selected{% endif %}>Tops</option>
+                <option value="bottoms" {% if current_section == 'bottoms' %}selected{% endif %}>Bottom</option>
+              </select>
+            </div>
+            
+            <!-- Price Range -->
             <div style="margin-bottom: 20px;">
               <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Price Range</label>
               <div style="display: flex; gap: 10px; align-items: center;">
@@ -201,53 +386,75 @@
               </div>
             </div>
 
-                  <div style="margin-bottom: 25px;">
-                    <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Minimum Rating</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                      {% for r in "43" %}
-                      <label style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 8px; border: 1px solid {% if current_min_rating == r %}var(--accent){% else %}var(--border){% endif %}; border-radius: 4px; background: {% if current_min_rating == r %}var(--accent-light){% else %}transparent{% endif %}; color: {% if current_min_rating == r %}#111{% else %}var(--text-main){% endif %};">
-                        <input type="radio" name="min_rating" value="{{ r }}" {% if current_min_rating == r %}checked{% endif %} style="display: none;">
-                        {{ r }}★ & Up
-                      </label>
-                      {% endfor %}
-                    </div>
-                  </div>
+            <!-- Minimum Rating -->
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Minimum Rating</label>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                {% for r in "43" %}
+                <label style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 8px; border: 1px solid {% if current_min_rating == r %}var(--accent){% else %}var(--border){% endif %}; border-radius: 4px; background: {% if current_min_rating == r %}var(--accent-light){% else %}transparent{% endif %}; color: {% if current_min_rating == r %}#111{% else %}var(--text-main){% endif %};">
+                  <input type="radio" name="min_rating" value="{{ r }}" {% if current_min_rating == r %}checked{% endif %} style="display: none;">
+                  {{ r }}★ & Up
+                </label>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Status Checkboxes -->
+            <div style="margin-bottom: 25px;">
+              <label style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; color: var(--text-muted); font-weight: 600;">Status</label>
+              <div style="display: flex; gap: 20px;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-main); cursor: pointer; font-weight: 600;">
+                  <input type="checkbox" name="trending" value="true" {% if current_trending %}checked{% endif %} style="accent-color: var(--accent); width: 16px; height: 16px;">
+                  Trending
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-main); cursor: pointer; font-weight: 600;">
+                  <input type="checkbox" name="top_rated" value="true" {% if current_top_rated %}checked{% endif %} style="accent-color: var(--accent); width: 16px; height: 16px;">
+                  Top Rated
+                </label>
+              </div>
+            </div>
 
             <div style="display: flex; gap: 10px;">
               <button type="submit" style="flex: 2; background: var(--primary); color: #fff; border: none; padding: 12px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 4px; cursor: pointer;">Apply</button>
-              <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&section={{ current_section|default:'' }}&sort={{ current_sort|default:'' }}&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}" style="flex: 1; border: 1px solid var(--border); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; text-transform: uppercase; font-weight: 600; border-radius: 4px;">Reset</a>
+              <a href="?" style="flex: 1; border: 1px solid var(--border); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; text-transform: uppercase; font-weight: 600; border-radius: 4px; text-decoration: none;">Reset</a>
             </div>
           </form>
         </div>
       </div>
 
+      <!-- Sort Custom Dropdown -->
+      <div class="custom-dropdown" id="sortDropdown" style="position: relative;">
+        <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Sort By</span>
+        <div class="dropdown-trigger" style="cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
+          {% if current_sort == 'price_low' %}Price: Low to High
+          {% elif current_sort == 'price_high' %}Price: High to Low
+          {% elif current_sort == 'rating' %}Top Rated
+          {% elif current_sort == 'high_discount' %}High Discount
+          {% else %}Newest First{% endif %}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+        <div class="dropdown-menu" style="display: none; position: absolute; top: 100%; right: 0; background: var(--bg-main); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 10px 0; min-width: 180px; margin-top: 10px; border-radius: 4px; text-align: left; z-index: 101;">
+          <!-- Mobile sheet header -->
+          <div class="mobile-sheet-header" style="display: none; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0; color: var(--text-main);">Sort By</h3>
+            <button type="button" class="close-sheet-btn" style="background: transparent; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;">&times;</button>
+          </div>
+          <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=newest&trending={% if current_trending %}true{% else %}false{% endif %}&top_rated={% if current_top_rated %}true{% else %}false{% endif %}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'newest' or not current_sort %}font-weight: 700; background: var(--bg-offset);{% endif %}">Newest First</a>
+          <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=price_low&trending={% if current_trending %}true{% else %}false{% endif %}&top_rated={% if current_top_rated %}true{% else %}false{% endif %}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'price_low' %}font-weight: 700; background: var(--bg-offset);{% endif %}">Price: Low to High</a>
+          <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=price_high&trending={% if current_trending %}true{% else %}false{% endif %}&top_rated={% if current_top_rated %}true{% else %}false{% endif %}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'price_high' %}font-weight: 700; background: var(--bg-offset);{% endif %}">Price: High to Low</a>
+          <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=rating&trending={% if current_trending %}true{% else %}false{% endif %}&top_rated={% if current_top_rated %}true{% else %}false{% endif %}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'rating' %}font-weight: 700; background: var(--bg-offset);{% endif %}">Top Rated</a>
+          <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=high_discount&trending={% if current_trending %}true{% else %}false{% endif %}&top_rated={% if current_top_rated %}true{% else %}false{% endif %}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'high_discount' %}font-weight: 700; background: var(--bg-offset);{% endif %}">High Discount</a>
+        </div>
+      </div>
+
+      <!-- Clear All Button -->
       {% if current_category or current_subcategory or current_section or current_trending or current_top_rated or current_min_price or current_max_price or current_min_rating %}
-        <a href="{% url 'product_list' %}" style="display: flex; align-items: center; gap: 6px; padding: 6px 14px; background: var(--bg-offset); border: 1px solid var(--border); border-radius: 40px; font-size: 0.75rem; color: var(--text-main); font-weight: 600; transition: all 0.3s ease;">
+        <a href="{% url 'product_list' %}" class="clear-all-chip">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
           Clear All
         </a>
       {% endif %}
-    </div>
 
-    <!-- Sort Custom Dropdown -->
-    <div class="filter-sort-wrapper custom-dropdown" id="sortDropdown" style="text-align: right; position: relative;">
-      <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Sort By</span>
-      <div class="dropdown-trigger" style="cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
-        {% if current_sort == 'price_low' %}Price: Low to High
-        {% elif current_sort == 'price_high' %}Price: High to Low
-        {% elif current_sort == 'rating' %}Top Rated
-        {% elif current_sort == 'high_discount' %}High Discount
-        {% else %}Newest First{% endif %}
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
-      </div>
-      <div class="dropdown-menu" style="display: none; position: absolute; top: 100%; right: 0; background: var(--bg-main); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 10px 0; min-width: 180px; margin-top: 10px; border-radius: 4px; text-align: left; z-index: 101;">
-        <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=newest&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'newest' or not current_sort %}font-weight: 700; background: var(--bg-offset);{% endif %}">Newest First</a>
-        <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=price_low&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'price_low' %}font-weight: 700; background: var(--bg-offset);{% endif %}">Price: Low to High</a>
-        <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=price_high&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'price_high' %}font-weight: 700; background: var(--bg-offset);{% endif %}">Price: High to Low</a>
-        <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=rating&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'rating' %}font-weight: 700; background: var(--bg-offset);{% endif %}">Top Rated</a>
-        <a href="?category={{ current_category|default:'' }}&subcategory={{ current_subcategory|default:'' }}&sort=high_discount&trending={{ current_trending|lower }}&top_rated={{ current_top_rated|lower }}&min_price={{ current_min_price|default:'' }}&max_price={{ current_max_price|default:'' }}&min_rating={{ current_min_rating|default:'' }}" style="display: block; padding: 8px 20px; font-size: 0.9rem; color: var(--text-main); {% if current_sort == 'high_discount' %}font-weight: 700; background: var(--bg-offset);{% endif %}">High Discount</a>
-      </div>
-    </div>
     </div><!-- /.filter-bar-inner -->
   </div>
 </section>
@@ -352,4 +559,113 @@
     {% endif %}
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const backdrop = document.getElementById('mobileFilterBackdrop');
+    
+    const filterDropdown = document.getElementById('filterDropdown');
+    const sortDropdown = document.getElementById('sortDropdown');
+    
+    const filterMenu = filterDropdown ? filterDropdown.querySelector('.dropdown-menu') : null;
+    const sortMenu = sortDropdown ? sortDropdown.querySelector('.dropdown-menu') : null;
+    
+    const filterTrigger = filterDropdown ? filterDropdown.querySelector('.dropdown-trigger') : null;
+    const sortTrigger = sortDropdown ? sortDropdown.querySelector('.dropdown-trigger') : null;
+
+    function isMobile() {
+      return window.matchMedia("(max-width: 768px)").matches;
+    }
+
+    function closeAllSheets() {
+      if (filterMenu) filterMenu.classList.remove('show-sheet');
+      if (sortMenu) sortMenu.classList.remove('show-sheet');
+      if (backdrop) {
+        backdrop.classList.remove('active');
+        setTimeout(() => {
+          backdrop.style.display = 'none';
+        }, 300);
+      }
+    }
+
+    function openSheet(menu) {
+      // Close others first
+      if (filterMenu && filterMenu !== menu) filterMenu.classList.remove('show-sheet');
+      if (sortMenu && sortMenu !== menu) sortMenu.classList.remove('show-sheet');
+      
+      if (backdrop) {
+        backdrop.style.display = 'block';
+        // Force layout reflow
+        backdrop.offsetHeight;
+        backdrop.classList.add('active');
+      }
+      
+      if (menu) {
+        menu.classList.add('show-sheet');
+      }
+    }
+
+    if (filterTrigger && filterMenu) {
+      filterTrigger.addEventListener('click', function(e) {
+        if (!isMobile()) return;
+        e.preventDefault();
+        e.stopPropagation(); // Stops bubbling to script.js because we use capture: true
+        if (filterMenu.classList.contains('show-sheet')) {
+          closeAllSheets();
+        } else {
+          openSheet(filterMenu);
+        }
+      }, true); // Capture phase intercept
+    }
+
+    if (sortTrigger && sortMenu) {
+      sortTrigger.addEventListener('click', function(e) {
+        if (!isMobile()) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if (sortMenu.classList.contains('show-sheet')) {
+          closeAllSheets();
+        } else {
+          openSheet(sortMenu);
+        }
+      }, true); // Capture phase intercept
+    }
+
+    // Close buttons inside sheets
+    document.querySelectorAll('.close-sheet-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        if (!isMobile()) return;
+        e.preventDefault();
+        e.stopPropagation();
+        closeAllSheets();
+      }, true);
+    });
+
+    // Backdrop click
+    if (backdrop) {
+      backdrop.addEventListener('click', function(e) {
+        if (!isMobile()) return;
+        e.preventDefault();
+        e.stopPropagation();
+        closeAllSheets();
+      }, true);
+    }
+    
+    // Stop propagation inside dropdown menus to prevent closing
+    if (filterMenu) {
+      filterMenu.addEventListener('click', function(e) {
+        if (!isMobile()) return;
+        e.stopPropagation();
+      }, true);
+    }
+    if (sortMenu) {
+      sortMenu.addEventListener('click', function(e) {
+        if (!isMobile()) return;
+        e.stopPropagation();
+      }, true);
+    }
+  });
+</script>
 {% endblock %}

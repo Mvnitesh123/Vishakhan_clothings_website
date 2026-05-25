@@ -26,6 +26,7 @@
 
   /* Spacing & Transitions */
   --header-height: 80px;
+  --header-height-mobile: 112px;  /* Row1(52px) + Row2(50px) + border(1px) + shadow */
   --announcement-height: 40px;
   --container-max: 1400px;
   --radius-sm: 2px;
@@ -2213,69 +2214,18 @@ input, select, textarea {
   }
 }
 
+/* Desktop navbar: hide on mobile (replaced by #mobile-nav) */
 @media (max-width: 768px) {
   .navbar {
-    height: 64px;
-  }
-  .navbar-container {
-    padding: 0 16px;
-  }
-  .navbar-logo {
-    font-size: 1.2rem;
-    letter-spacing: 0.05em;
-    /* Center on mobile */
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  .hamburger {
-    width: 22px;
-    gap: 4px;
-    z-index: 1;
-  }
-  .hamburger span {
-    height: 1.5px;
-  }
-  .navbar-actions {
-    gap: 6px;
-    z-index: 1;
-  }
-  .action-btn {
-    width: 36px;
-    height: 36px;
-  }
-  .action-btn svg {
-    width: 18px;
-    height: 18px;
-  }
-  /* Move logo to center on mobile by using flex on container */
-  .navbar-container {
-    justify-content: space-between;
-    position: relative;
-  }
-}
-
-@media (max-width: 480px) {
-  .navbar {
-    height: 58px;
-  }
-  .navbar-logo {
-    font-size: 1.05rem;
-  }
-  .navbar-actions {
-    gap: 4px;
-  }
-  .action-btn {
-    width: 32px;
-    height: 32px;
+    display: none;
   }
 }
 
 /* ===== MOBILE DRAWER ===== */
 @media (max-width: 768px) {
   .mobile-drawer {
-    width: 100%;
-    max-width: 100vw;
+    width: 85%;
+    max-width: 350px;
   }
   .drawer-header {
     padding: 16px 20px;
@@ -2877,12 +2827,277 @@ input, select, textarea {
   }
 }
 
-/* ===== MAIN CONTENT PADDING FOR FIXED NAVBAR ===== */
+
+
+
+/* ==========================================================================
+   MOBILE NAV — Clean Two-Row Header (Flipkart-inspired)
+   Only shown on mobile ≤ 768px. Desktop .navbar is hidden on mobile.
+   ========================================================================== */
+
+/* ── Hide mobile nav on desktop ── */
+#mobile-nav {
+  display: none;
+}
+
 @media (max-width: 768px) {
-  #main-content > *:first-child {
-    /* Compensate for reduced navbar height */
-    padding-top: var(--header-height, 64px);
+
+  /* ── Show mobile nav, hide desktop navbar ── */
+  #mobile-nav {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background: var(--bg-overlay);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    transition: background 0.3s ease, border-color 0.3s ease;
   }
+
+  /* ────────────────────────────────────────────
+     ROW 1  :  [Brand Text]         [Hamburger]
+  ──────────────────────────────────────────── */
+  .mnav-row1 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 0 14px;
+    height: 52px;
+    width: 100%;
+  }
+
+  /* Hamburger ─ left */
+  .mnav-hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+  }
+
+  .mnav-hamburger:active {
+    background: var(--bg-offset);
+  }
+
+  .mnav-hamburger span {
+    display: block;
+    width: 100%;
+    height: 1.5px;
+    background: var(--text-main);
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  /* Brand ─ logo + text */
+  .mnav-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--text-main);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .mnav-logo-img {
+    height: 26px;
+    width: auto;
+    flex-shrink: 0;
+    display: block;
+  }
+
+  .mnav-brand-text {
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-main);
+  }
+
+  /* ────────────────────────────────────────────────────────
+     ROW 2  :  [Search Bar ............] [Theme][♥][🛍][👤]
+  ──────────────────────────────────────────────────────── */
+  .mnav-row2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 10px 10px 10px;
+    width: 100%;
+  }
+
+  /* Search pill ─ fills available space */
+  .mnav-search-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    background: var(--bg-offset);
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    padding: 7px 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: text;
+  }
+
+  .mnav-search-form:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.12);
+    background: var(--bg-main);
+  }
+
+  .mnav-search-icon {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    opacity: 0.7;
+  }
+
+  .mnav-search-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-main);
+    outline: none;
+    padding: 0;
+  }
+
+  .mnav-search-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.75;
+    font-size: 0.83rem;
+  }
+
+  /* Prevent iOS auto-zoom */
+  .mnav-search-input {
+    font-size: max(16px, 0.85rem);
+  }
+
+  /* Action icon row ─ right side */
+  .mnav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-shrink: 0;
+  }
+
+  /* Individual icon button */
+  .mnav-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-main);
+    text-decoration: none;
+    transition: background 0.18s ease, transform 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mnav-btn:active {
+    background: var(--bg-offset);
+    transform: scale(0.92);
+  }
+
+  /* Theme toggle icon visibility (inherits the same logic as desktop) */
+  .mnav-btn .icon-sun,
+  .mnav-btn .icon-moon {
+    position: absolute;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  /* Light theme: show sun */
+  [data-theme="light"] .mnav-btn .icon-sun,
+  :root:not([data-theme]) .mnav-btn .icon-sun {
+    opacity: 1;
+    transform: scale(1);
+  }
+  [data-theme="light"] .mnav-btn .icon-moon,
+  :root:not([data-theme]) .mnav-btn .icon-moon {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+
+  /* Dark theme: show moon */
+  [data-theme="dark"] .mnav-btn .icon-sun {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  [data-theme="dark"] .mnav-btn .icon-moon {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Badge on wishlist/cart */
+  .mnav-badge {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    min-width: 14px;
+    height: 14px;
+    padding: 0 3px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.55rem;
+    font-weight: 700;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .mnav-badge--cart {
+    background: var(--primary);
+  }
+
+  /* Avatar for profile image */
+  .mnav-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* ── Push page content down to clear sticky header ── */
+  body {
+    padding-top: var(--header-height-mobile);
+  }
+
+  /* Restore any sections that add their own top spacing */
+  #main-content > *:first-child {
+    padding-top: 0;
+  }
+
 }
 
 /* ===== SMOOTH TRANSITIONS FOR MOBILE ===== */

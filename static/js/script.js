@@ -108,7 +108,8 @@ function initNavbar() {
 /* ========== THEME TOGGLE ========== */
 function initTheme() {
   const themeToggle = document.getElementById('themeToggle');
-  const mobileThemeToggle = document.getElementById('mobileThemeToggle');
+  const mobileThemeToggle = document.getElementById('mobileThemeToggle'); // drawer checkbox toggle
+  const mnavThemeToggle = document.getElementById('mnavThemeToggle');     // mobile nav button toggle
   const html = document.documentElement;
 
   const savedTheme = localStorage.getItem('theme') || 'light';
@@ -124,6 +125,7 @@ function initTheme() {
   }
 
   if (themeToggle) themeToggle.addEventListener('click', toggle);
+  if (mnavThemeToggle) mnavThemeToggle.addEventListener('click', toggle);
   if (mobileThemeToggle) mobileThemeToggle.addEventListener('change', toggle);
 }
 
@@ -155,25 +157,32 @@ function initSearch() {
 
 /* ========== MOBILE DRAWER ========== */
 function initMobileDrawer() {
-  const btn = document.getElementById('hamburgerBtn');
+  // Support both the desktop hamburger (#hamburgerBtn) and the new mobile nav hamburger (#mobileHamburger)
+  const btns = [
+    document.getElementById('hamburgerBtn'),
+    document.getElementById('mobileHamburger'),
+  ].filter(Boolean);
+
   const drawer = document.getElementById('mobileDrawer');
   const overlay = document.getElementById('mobileOverlay');
   const close = document.getElementById('drawerClose');
 
-  if (!btn || !drawer) return;
+  if (!drawer) return;
 
-  btn.addEventListener('click', () => {
+  const openDrawer = () => {
     drawer.classList.add('active');
     overlay.classList.add('active');
-  });
+  };
+
+  btns.forEach(btn => btn.addEventListener('click', openDrawer));
 
   const closeDrawer = () => {
     drawer.classList.remove('active');
     overlay.classList.remove('active');
   };
 
-  close.addEventListener('click', closeDrawer);
-  overlay.addEventListener('click', closeDrawer);
+  if (close) close.addEventListener('click', closeDrawer);
+  if (overlay) overlay.addEventListener('click', closeDrawer);
 
   // Submenu toggles
   const subTriggers = drawer.querySelectorAll('.submenu-trigger');
