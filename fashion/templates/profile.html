@@ -91,128 +91,312 @@
   ================================================ */
   @media (max-width: 768px) {
 
-    /* Wrapper */
+    /* ── Wrapper ── */
     .profile-page-wrapper {
-      padding: 2rem 0;
+      padding: 1.5rem 0 2.5rem;
       margin-top: 64px;
     }
 
-    /* Stack grid: left column above right column */
+    /* ── Stack grid single column ── */
     .profile-main-grid {
       grid-template-columns: 1fr;
-      gap: 18px;
+      gap: 14px;
     }
 
-    /* Breadcrumb smaller on mobile */
+    /* ── Left & Right col: normal block flow on mobile ── */
+    .profile-left-col,
+    .profile-right-col {
+      display: grid;
+      gap: 14px;
+      width: 100%;
+    }
+
+    /* ── Breadcrumb ── */
     .profile-breadcrumb {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
       font-size: 0.72rem;
     }
 
-    /* ── Profile Picture Card ── */
-    /* Reduce card padding */
-    .profile-page-wrapper [style*="padding: 40px 30px"] {
-      padding: 24px 20px !important;
-    }
+    /* ══════════════════════════════════════════
+       CARD PADDING — CLASS-BASED
+    ══════════════════════════════════════════ */
+    .p-card-profile  { padding: 22px 18px !important; }
+    .p-card-bag      { padding: 18px 16px !important; }
+    .p-card-personal { padding: 18px 16px !important; }
+    .p-card-address  { padding: 18px 16px !important; }
+    .p-card-wishlist { padding: 18px 16px !important; }
+    .p-card-orders   { padding: 18px 16px !important; }
+    .p-card-history  { padding: 18px 16px !important; }
 
-    /* ── All section cards ── */
-    .profile-page-wrapper [style*="padding: 35px"] {
-      padding: 20px 16px !important;
+    /* ══════════════════════════════════════════
+       PROFILE CARD INTERNALS
+    ══════════════════════════════════════════ */
+    /* Avatar */
+    .p-card-profile [style*="width: 130px; height: 130px"] {
+      width: 100px !important;
+      height: 100px !important;
     }
-    .profile-page-wrapper [style*="padding: 30px"] {
-      padding: 18px 16px !important;
-    }
-
-    /* Section headings in cards */
-    .profile-page-wrapper [style*="font-size: 1.4rem"] {
-      font-size: 1.15rem !important;
-      margin-bottom: 16px !important;
-    }
-    .profile-page-wrapper [style*="font-size: 1.3rem"] {
-      font-size: 1.1rem !important;
-      margin-bottom: 14px !important;
-    }
-
-    /* Profile name h2 */
-    .profile-page-wrapper [style*="font-size: 1.6rem"] {
-      font-size: 1.25rem !important;
+    /* Name */
+    .p-card-profile h2 {
+      font-size: 1.2rem !important;
       margin-bottom: 4px !important;
     }
+    /* Email */
+    .p-card-profile p {
+      font-size: 0.82rem !important;
+      margin-bottom: 14px !important;
+    }
+    /* Joined badge */
+    .p-card-profile span[style*="border-radius: 20px"] {
+      font-size: 0.65rem !important;
+      padding: 5px 12px !important;
+    }
+    /* Logout section */
+    .p-card-profile [style*="margin-top: 25px"] {
+      margin-top: 16px !important;
+      padding-top: 14px !important;
+    }
+    /* Logout btn */
+    .p-card-profile .btn {
+      padding: 10px 20px !important;
+      font-size: 0.75rem !important;
+    }
 
-    /* ── Cart item rows ── */
-    .cart-item-row,
-    .profile-page-wrapper [style*="display: flex; gap: 15px; align-items: center; padding: 15px; background: var(--bg-main); border:"] {
+    /* ══════════════════════════════════════════
+       SECTION HEADINGS (h3) INSIDE CARDS
+    ══════════════════════════════════════════ */
+    .p-card-bag h3,
+    .p-card-wishlist h3,
+    .p-card-orders h3,
+    .p-card-history h3 {
+      font-size: 1.1rem !important;
+      margin-bottom: 16px !important;
+    }
+    .p-card-personal h3,
+    .p-card-address h3 {
+      font-size: 1.05rem !important;
+      margin-bottom: 14px !important;
+      padding-bottom: 10px !important;
+    }
+
+    /* ══════════════════════════════════════════
+       FORM INPUTS (Personal Details & Address)
+    ══════════════════════════════════════════ */
+    .p-card-personal input,
+    .p-card-address input,
+    .p-card-address textarea {
+      padding: 10px 12px !important;
+      font-size: 0.88rem !important;
+    }
+    .p-card-personal label,
+    .p-card-address label {
+      font-size: 0.65rem !important;
+      margin-bottom: 5px !important;
+    }
+    .p-card-personal [style*="margin-bottom: 15px"],
+    .p-card-address  [style*="margin-bottom: 15px"] {
+      margin-bottom: 12px !important;
+    }
+    .p-card-personal [style*="margin-bottom: 25px"],
+    .p-card-address  [style*="margin-bottom: 25px"] {
+      margin-bottom: 16px !important;
+    }
+    .p-card-personal .btn,
+    .p-card-address .btn {
+      padding: 11px !important;
+      font-size: 0.78rem !important;
+    }
+
+    /* Address 2-col grid → 1 col */
+    .address-2col-grid {
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
+    }
+
+    /* ══════════════════════════════════════════
+       SHOPPING BAG CARD
+    ══════════════════════════════════════════ */
+    /* Cart item count badge */
+    .p-card-bag h3 span[style*="border-radius: 12px"] {
+      font-size: 0.72rem !important;
+      padding: 3px 10px !important;
+    }
+    /* Scrollable cart list */
+    .p-card-bag [style*="max-height: 380px"] {
+      max-height: 240px !important;
+      padding-right: 4px !important;
+      margin-bottom: 16px !important;
+    }
+    /* Individual cart row */
+    .p-card-bag [style*="display: flex; gap: 15px; align-items: center; padding: 15px"] {
       gap: 10px !important;
-      padding: 12px !important;
+      padding: 10px !important;
     }
-
-    /* Cart item thumbnail */
-    .profile-page-wrapper [style*="width: 55px; height: 75px"] {
-      width: 46px !important;
-      height: 62px !important;
+    /* Cart thumbnail */
+    .p-card-bag [style*="width: 55px; height: 75px"] {
+      width: 48px !important;
+      height: 64px !important;
     }
-
-    /* Cart item name (prevent overflow) */
-    .profile-page-wrapper .cart-item-row h4,
-    .profile-page-wrapper [style*="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"] {
+    /* Cart item name */
+    .p-card-bag h4 {
       font-size: 0.85rem !important;
     }
-
-    /* Cart subtotal row */
-    .profile-page-wrapper [style*="display: flex; align-items: center; justify-content: space-between; border-top"] {
-      flex-direction: column !important;
-      align-items: stretch !important;
-      gap: 14px !important;
+    /* Cart item meta (size/color) */
+    .p-card-bag [style*="font-size: 0.75rem; color: var(--text-muted); margin: 0 0 4px 0"] {
+      font-size: 0.7rem !important;
     }
-    .profile-page-wrapper [style*="display: flex; align-items: center; justify-content: space-between; border-top"] a {
-      width: 100% !important;
-      text-align: center !important;
+    /* Qty selector */
+    .cart-qty-selector {
+      margin-top: 6px !important;
+    }
+    .cart-qty-btn {
+      width: 24px !important;
+      height: 24px !important;
+      font-size: 13px !important;
+    }
+    .cart-qty-val {
+      width: 24px !important;
+      font-size: 11px !important;
+    }
+    /* Price column */
+    .p-card-bag [style*="text-align: right; display: flex; flex-direction: column"] {
+      gap: 2px !important;
+    }
+    .p-card-bag [style*="font-weight: 700; font-size: 1rem"] {
+      font-size: 0.9rem !important;
+    }
+    /* Remove × button */
+    .remove-cart-item {
+      font-size: 17px !important;
+      padding: 4px !important;
+      margin-left: 6px !important;
+    }
+    /* Subtotal row */
+    .p-card-bag [style*="display: flex; align-items: center; justify-content: space-between; border-top"] {
+      flex-direction: row !important;
+      align-items: center !important;
+      flex-wrap: wrap !important;
+      gap: 10px !important;
+      padding-top: 14px !important;
+    }
+    .p-card-bag [style*="font-size: 1.4rem; font-weight: 700"] {
+      font-size: 1.15rem !important;
+    }
+    .p-card-bag .btn {
+      padding: 9px 18px !important;
+      font-size: 0.75rem !important;
+    }
+    /* Out-of-stock warning */
+    .p-card-bag [style*="background: rgba(214, 40, 40, 0.08)"] {
+      font-size: 0.8rem !important;
+      padding: 10px !important;
+    }
+    /* Empty bag placeholder */
+    .p-card-bag [style*="padding: 40px 20px"] {
+      padding: 28px 16px !important;
     }
 
-    /* ── Wishlist grid: 2 columns on mobile ── */
-    .profile-page-wrapper [style*="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr))"] {
+    /* ══════════════════════════════════════════
+       WISHLIST CARD
+    ══════════════════════════════════════════ */
+    .p-card-wishlist [style*="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr))"] {
       grid-template-columns: repeat(2, 1fr) !important;
       gap: 10px !important;
     }
-    /* Wishlist item image height */
-    .profile-page-wrapper [style*="height: 140px; overflow: hidden"] {
-      height: 110px !important;
+    .p-card-wishlist [style*="height: 140px; overflow: hidden"] {
+      height: 105px !important;
+    }
+    .p-card-wishlist [style*="padding: 10px; background"] {
+      padding: 8px !important;
+    }
+    .p-card-wishlist [style*="font-size: 0.8rem; font-weight: 600"] {
+      font-size: 0.75rem !important;
+    }
+    .p-card-wishlist [style*="font-size: 0.75rem; color: var(--accent)"] {
+      font-size: 0.7rem !important;
+    }
+    /* Remove & Add-to-cart buttons inside wishlist items */
+    .p-card-wishlist button[style*="position: absolute"] {
+      width: 26px !important;
+      height: 26px !important;
+    }
+    /* Show more button */
+    .p-card-wishlist .btn {
+      padding: 8px 18px !important;
+      font-size: 0.75rem !important;
     }
 
-    /* ── Order history row ── */
+    /* ══════════════════════════════════════════
+       ACTIVE ORDERS CARD
+    ══════════════════════════════════════════ */
+    .p-card-orders [style*="background: var(--bg-main); border: 1px solid var(--border); border-radius: 10px; padding: 20px"] {
+      padding: 14px !important;
+    }
+    /* Order ID / date header row */
+    .p-card-orders [style*="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; border-bottom"] {
+      flex-wrap: wrap !important;
+      gap: 6px !important;
+      margin-bottom: 10px !important;
+      padding-bottom: 10px !important;
+    }
+    .p-card-orders h4 {
+      font-size: 0.82rem !important;
+    }
+    /* Item lines */
+    .p-card-orders [style*="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem"] {
+      font-size: 0.8rem !important;
+    }
+    /* Status + payment badges row */
+    .p-card-orders [style*="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 15px; flex-wrap: wrap"] {
+      flex-wrap: wrap !important;
+      gap: 8px !important;
+      padding-top: 10px !important;
+    }
+    .p-card-orders span[style*="padding: 5px 12px"] {
+      font-size: 0.65rem !important;
+      padding: 4px 9px !important;
+    }
+    .p-card-orders [style*="font-weight: 700; font-size: 1.1rem"] {
+      font-size: 0.95rem !important;
+    }
+
+    /* ══════════════════════════════════════════
+       ORDER HISTORY CARD
+    ══════════════════════════════════════════ */
     .order-history-row,
-    .profile-page-wrapper [style*="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px"] {
-      flex-direction: column !important;
-      align-items: flex-start !important;
-      gap: 10px !important;
-    }
-
-    /* Active order header row (ID vs Date) */
-    .profile-page-wrapper [style*="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; border-bottom"] {
-      gap: 8px !important;
-    }
-
-    /* Active order status + payment badges row */
-    .profile-page-wrapper [style*="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 15px; flex-wrap: wrap"] {
+    .p-card-history [style*="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px"] {
       flex-direction: column !important;
       align-items: flex-start !important;
       gap: 8px !important;
+      padding: 12px !important;
+    }
+    .p-card-history h4 {
+      font-size: 0.8rem !important;
+    }
+    .p-card-history [style*="font-size: 0.75rem; color: var(--text-muted)"] {
+      font-size: 0.72rem !important;
+    }
+    .p-card-history span[style*="padding: 3px 8px"] {
+      font-size: 0.62rem !important;
+      padding: 3px 8px !important;
+    }
+    .p-card-history [style*="font-weight: 700; font-size: 0.95rem"] {
+      font-size: 0.88rem !important;
+    }
+    .p-card-history .btn {
+      padding: 8px 18px !important;
+      font-size: 0.75rem !important;
     }
 
-    /* ── Address grid: 1 column on mobile ── */
-    .address-2col-grid {
-      grid-template-columns: 1fr !important;
+    /* ══════════════════════════════════════════
+       MESSAGES / ALERTS
+    ══════════════════════════════════════════ */
+    #profileMessagesContainer {
+      margin-bottom: 1rem;
     }
-
-    /* ── Cart max-height: shrink scroll region ── */
-    .profile-page-wrapper [style*="max-height: 380px"] {
-      max-height: 260px !important;
-    }
-
-    /* Logout button */
-    .profile-page-wrapper [style*="margin-top: 25px; border-top"] {
-      margin-top: 18px !important;
-      padding-top: 14px !important;
+    .profile-message-alert {
+      padding: 12px 16px !important;
+      font-size: 0.85rem !important;
     }
   }
 
@@ -222,83 +406,103 @@
   @media (max-width: 480px) {
 
     .profile-page-wrapper {
-      padding: 1.2rem 0;
+      padding: 1rem 0 2rem;
       margin-top: 58px;
     }
 
-    /* Even tighter card padding */
-    .profile-page-wrapper [style*="padding: 40px 30px"],
-    .profile-page-wrapper [style*="padding: 24px 20px"] {
-      padding: 18px 14px !important;
-    }
-    .profile-page-wrapper [style*="padding: 35px"],
-    .profile-page-wrapper [style*="padding: 20px 16px"] {
-      padding: 16px 12px !important;
-    }
-    .profile-page-wrapper [style*="padding: 30px"],
-    .profile-page-wrapper [style*="padding: 18px 16px"] {
-      padding: 14px 12px !important;
-    }
+    /* Tighter card padding */
+    .p-card-profile  { padding: 18px 14px !important; }
+    .p-card-bag,
+    .p-card-personal,
+    .p-card-address,
+    .p-card-wishlist,
+    .p-card-orders,
+    .p-card-history  { padding: 14px 12px !important; }
 
-    /* Avatar size */
-    .profile-page-wrapper [style*="width: 130px; height: 130px"] {
-      width: 100px !important;
-      height: 100px !important;
+    /* Avatar */
+    .p-card-profile [style*="width: 130px; height: 130px"] {
+      width: 88px !important;
+      height: 88px !important;
+    }
+    .p-card-profile [style*="width: 40px; height: 40px"] {
+      width: 32px !important;
+      height: 32px !important;
     }
 
     /* Profile name */
-    .profile-page-wrapper [style*="font-size: 1.6rem"],
-    .profile-page-wrapper [style*="font-size: 1.25rem"] {
-      font-size: 1.1rem !important;
-    }
+    .p-card-profile h2 { font-size: 1.05rem !important; }
 
     /* Section headings */
-    .profile-page-wrapper [style*="font-size: 1.4rem"],
-    .profile-page-wrapper [style*="font-size: 1.15rem"] {
-      font-size: 1rem !important;
+    .p-card-bag h3,
+    .p-card-wishlist h3,
+    .p-card-orders h3,
+    .p-card-history h3,
+    .p-card-personal h3,
+    .p-card-address h3 {
+      font-size: 0.95rem !important;
+      margin-bottom: 12px !important;
     }
 
-    /* Wishlist: 2 columns but smaller */
-    .profile-page-wrapper [style*="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr))"] {
-      grid-template-columns: repeat(2, 1fr) !important;
+    /* Inputs tighter */
+    .p-card-personal input,
+    .p-card-address input,
+    .p-card-address textarea {
+      padding: 9px 11px !important;
+      font-size: 0.85rem !important;
+    }
+
+    /* Cart thumbnail smaller */
+    .p-card-bag [style*="width: 55px; height: 75px"] {
+      width: 42px !important;
+      height: 56px !important;
+    }
+
+    /* Cart max scroll */
+    .p-card-bag [style*="max-height: 380px"] {
+      max-height: 200px !important;
+    }
+
+    /* Cart item name */
+    .p-card-bag h4 { font-size: 0.8rem !important; }
+
+    /* Wishlist 2-col tighter */
+    .p-card-wishlist [style*="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr))"] {
       gap: 8px !important;
     }
-    .profile-page-wrapper [style*="height: 140px; overflow: hidden"],
-    .profile-page-wrapper [style*="height: 110px !important"] {
-      height: 90px !important;
+    .p-card-wishlist [style*="height: 140px; overflow: hidden"] {
+      height: 85px !important;
     }
 
-    /* Cart thumbnail */
-    .profile-page-wrapper [style*="width: 55px; height: 75px"],
-    .profile-page-wrapper [style*="width: 46px; height: 62px"] {
-      width: 40px !important;
-      height: 52px !important;
-    }
+    /* History order rows */
+    .p-card-history h4 { font-size: 0.75rem !important; }
 
-    /* Cart item description font */
-    .profile-page-wrapper [style*="font-size: 0.75rem; color: var(--text-muted); margin: 0 0 4px 0"] {
-      font-size: 0.68rem !important;
-    }
-
-    /* Order ID mono font */
-    .profile-page-wrapper [style*="font-family: var(--font-mono); font-size: 0.85rem"] {
-      font-size: 0.78rem !important;
-    }
-
-    /* Remove outer horizontal scroll from message alerts on very small screens */
-    #profileMessagesContainer {
-      margin-bottom: 1.2rem;
-    }
+    /* Message alert */
+    #profileMessagesContainer { margin-bottom: 0.8rem; }
     .profile-message-alert {
-      padding: 12px 16px !important;
-      font-size: 0.85rem !important;
+      padding: 10px 14px !important;
+      font-size: 0.8rem !important;
     }
   }
 
   /* ================================================
      Profile Section Navigation Bar
+     — Desktop: hidden
+     — Mobile (≤768px): visible sticky strip
   ================================================ */
+  /* All p-card-* fill their grid column on desktop */
+  .p-card-profile,
+  .p-card-bag,
+  .p-card-personal,
+  .p-card-address,
+  .p-card-wishlist,
+  .p-card-orders,
+  .p-card-history {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
   .profile-section-nav {
+    display: none !important; /* hidden on desktop */
     position: sticky;
     top: 80px;
     z-index: 50;
@@ -308,8 +512,7 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 6px;
-    margin-bottom: 2rem;
-    display: flex;
+    margin-bottom: 1.5rem;
     align-items: center;
     gap: 4px;
     overflow-x: auto;
@@ -348,8 +551,15 @@
     color: #fff;
   }
 
+  /* ================================================
+     Mobile Section Ordering + Full Width Cards
+     ≤ 768px: show nav, reorder sections, fix widths
+  ================================================ */
   @media (max-width: 768px) {
+
+    /* Show nav strip on mobile */
     .profile-section-nav {
+      display: flex !important;
       top: 64px;
       border-radius: 8px;
       padding: 4px;
@@ -362,7 +572,56 @@
       gap: 4px;
     }
     .profile-nav-btn svg { width: 13px; height: 13px; }
+
+    /* Switch main grid to flat flex column */
+    .profile-main-grid {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 18px !important;
+      width: 100% !important;
+    }
+
+    /* Dissolve left/right column wrappers so cards
+       become direct flex children of profile-main-grid */
+    .profile-left-col,
+    .profile-right-col {
+      display: contents;
+    }
+
+    /* Full width for every section card */
+    .p-card-profile,
+    .p-card-bag,
+    .p-card-personal,
+    .p-card-address,
+    .p-card-wishlist,
+    .p-card-orders,
+    .p-card-history {
+      width: 100% !important;
+      box-sizing: border-box !important;
+      min-width: 0 !important;
+    }
+
+    /* Visual order on mobile:
+       Profile (1) → Shopping Bag (2) → Personal (3) → Address (4)
+       → Wishlist (5) → Orders (6) → History (7) */
+    .p-card-profile  { order: 1; }
+    .p-card-bag      { order: 2; }
+    .p-card-personal { order: 3; }
+    .p-card-address  { order: 4; }
+    .p-card-wishlist { order: 5; }
+    .p-card-orders   { order: 6; }
+    .p-card-history  { order: 7; }
+
+    /* Anchor spans — order must match their card so scroll-to works */
+    #section-profile  { order: 1; }
+    #section-bag      { order: 2; }
+    #section-personal { order: 3; }
+    #section-address  { order: 4; }
+    #section-wishlist { order: 5; }
+    #section-orders   { order: 6; }
+    #section-history  { order: 7; }
   }
+
   @media (max-width: 480px) {
     .profile-section-nav { top: 58px; }
     .profile-nav-btn {
@@ -430,6 +689,10 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         Profile
       </button>
+      <button class="profile-nav-btn" data-target="section-bag" onclick="profileNavScroll('section-bag', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Bag
+      </button>
       <button class="profile-nav-btn" data-target="section-personal" onclick="profileNavScroll('section-personal', this)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Personal
@@ -437,10 +700,6 @@
       <button class="profile-nav-btn" data-target="section-address" onclick="profileNavScroll('section-address', this)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
         Address
-      </button>
-      <button class="profile-nav-btn" data-target="section-bag" onclick="profileNavScroll('section-bag', this)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        Bag
       </button>
       <button class="profile-nav-btn" data-target="section-wishlist" onclick="profileNavScroll('section-wishlist', this)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -460,10 +719,11 @@
     <div class="profile-main-grid">
       
       <!-- LEFT COLUMN: Profile Info & Form Settings -->
-      <div style="display: grid; gap: 30px;">
+      <div class="profile-left-col" style="display: grid; gap: 30px;">
         
         <!-- Profile Picture & Card Header -->
-        <div style="background: var(--bg-offset); border: 1px solid var(--border); border-radius: 12px; padding: 40px 30px; text-align: center; box-shadow: var(--shadow);">
+        <span id="section-profile" style="scroll-margin-top: 140px;"></span>
+        <div class="p-card-profile" style="background: var(--bg-offset); border: 1px solid var(--border); border-radius: 12px; padding: 40px 30px; text-align: center; box-shadow: var(--shadow);">
           
           <!-- Large Circular Avatar Upload form wrapper -->
           <form id="avatarForm" method="POST" enctype="multipart/form-data">
@@ -504,7 +764,7 @@
 
         <!-- Personal Details Form -->
         <span id="section-personal" style="scroll-margin-top: 140px;"></span>
-        <div style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; padding: 30px; box-shadow: var(--shadow);">
+        <div class="p-card-personal" style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; padding: 30px; box-shadow: var(--shadow);">
           <h3 style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"/></svg>
             Personal Details
@@ -547,7 +807,7 @@
 
         <!-- Default Shipping Address Form -->
         <span id="section-address" style="scroll-margin-top: 140px;"></span>
-        <div style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; padding: 30px; box-shadow: var(--shadow);">
+        <div class="p-card-address" style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; padding: 30px; box-shadow: var(--shadow);">
           <h3 style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
             Shipping Address
@@ -614,11 +874,11 @@
       </div>
 
       <!-- RIGHT COLUMN: Shopping Sessions, Active Orders, & Order History -->
-      <div style="display: grid; gap: 30px;">
+      <div class="profile-right-col" style="display: grid; gap: 30px;">
         
         <!-- Active Cart/Bag Card -->
         <span id="section-bag" style="scroll-margin-top: 140px;"></span>
-        <div style="background: var(--bg-offset); border: 1px solid var(--border); border-radius: 12px; padding: 35px; box-shadow: var(--shadow);">
+        <div class="p-card-bag" style="background: var(--bg-offset); border: 1px solid var(--border); border-radius: 12px; padding: 35px; box-shadow: var(--shadow);">
           <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--text-main); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;">
             <span style="display: flex; align-items: center; gap: 10px;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
@@ -691,7 +951,7 @@
 
         <!-- Wishlist Saved Pieces Card -->
         <span id="section-wishlist" style="scroll-margin-top: 140px;"></span>
-        <div style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; padding: 35px; box-shadow: var(--shadow);">
+        <div class="p-card-wishlist" style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; padding: 35px; box-shadow: var(--shadow);">
           <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--text-main); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;">
             <span style="display: flex; align-items: center; gap: 10px;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
@@ -737,7 +997,7 @@
 
         <!-- Active Order Tracking -->
         <span id="section-orders" style="scroll-margin-top: 140px;"></span>
-        <div style="background: var(--bg-offset); border: 1px solid var(--border); border-radius: 12px; padding: 35px; box-shadow: var(--shadow);">
+        <div class="p-card-orders" style="background: var(--bg-offset); border: 1px solid var(--border); border-radius: 12px; padding: 35px; box-shadow: var(--shadow);">
           <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--text-main); margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
             Active Order Tracking
@@ -801,7 +1061,7 @@
 
         <!-- Order History Log -->
         <span id="section-history" style="scroll-margin-top: 140px;"></span>
-        <div style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; padding: 35px; box-shadow: var(--shadow);">
+        <div class="p-card-history" style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; padding: 35px; box-shadow: var(--shadow);">
           <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--text-main); margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             Order History Log
