@@ -10,6 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+from sentry_sdk.integrations.django import DjangoIntegration
+import sentry_sdk
+import dj_database_url
 from pathlib import Path
 import cloudinary
 import cloudinary.uploader
@@ -32,8 +35,21 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
 DEBUG = os.getenv("DEBUG", "False") == "True"
-# ALLOWED_HOSTS = ["127.0.0.1", "localhost", "'.fly.dev'"]
-ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "127.0.0.1", 
+    "localhost", 
+    "vishakhan-clothings-website.onrender.com", 
+    "vishakhanclothingswebsite--mvreddynitesh.replit.app", 
+    "vishakhanclothings.alwaysdata.net"
+]
+
+# Proxy & SSL Settings for Production
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# Only redirect if not in DEBUG mode
+SECURE_SSL_REDIRECT = os.getenv("DEBUG", "False") != "True"
+SESSION_COOKIE_SECURE = os.getenv("DEBUG", "False") != "True"
+CSRF_COOKIE_SECURE = os.getenv("DEBUG", "False") != "True"
 
 # Application definition
 
@@ -46,9 +62,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.postgres',
-    
+
     'fashion',
     'dashboard',
+    'core',
     'cloudinary',
     'cloudinary_storage',
 
@@ -61,9 +78,9 @@ INSTALLED_APPS = [
 
 
 cloudinary.config(
-    cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME'),
-    api_key = os.getenv('CLOUDINARY_API_KEY'),
-    api_secret = os.getenv('CLOUDINARY_API_SECRET'),
+    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.getenv('CLOUDINARY_API_KEY'),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET'),
     secure=True
 )
 
@@ -75,7 +92,7 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
- 
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -91,6 +108,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'core.middleware.RateLimitMiddleware',
 ]
 
 ROOT_URLCONF = 'vishakhan_clothings.urls'
@@ -115,11 +133,9 @@ WSGI_APPLICATION = 'vishakhan_clothings.wsgi.application'
 AUTH_USER_MODEL = 'fashion.User'
 
 
-
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-import dj_database_url
 # Detect PythonAnywhere
 # ON_PYTHONANYWHERE = 'PYTHONANYWHERE_SITE' in os.environ
 
@@ -142,7 +158,7 @@ DATABASES = {
         'PASSWORD': os.getenv("DB_PASSWORD"),
         'HOST': os.getenv("DB_HOST"),
         'PORT': os.getenv("DB_PORT"),
-        'CONN_MAX_AGE': 600,
+        'CONN_MAX_AGE': 60,
         'OPTIONS': {
             'sslmode': 'require',
         },
@@ -154,8 +170,6 @@ DATABASES = {
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-
-
 
 
 # Password validation
@@ -221,3 +235,28 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {'access_type': 'online'},
     }
 }
+
+# Caching for Rate Limiting & General Usage
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "default-cache",
+    }
+}
+
+# Input Validation / Security Limits
+# Prevent oversized payloads (e.g. max 5MB)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
+
+# Rate Limiting Global Settings
+RATELIMIT_VIEW = 'core.middleware.ratelimited_error_view'
+
+
+SENTRY_DSN = os.getenv("SENTRY_DSN")
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=0.1,  # Low sample rate for free-tier limits
+        send_default_pii=True
+    )
